@@ -6,13 +6,12 @@
 //#define C_TWO_PI (6.2831853071795864769252867665590058L)
 //#define C_PI (3.1415926535897932384626433832795029L)
 
-typedef double _FPTYPE;
 
 struct O2 {
-  _FPTYPE x; /* X */
-  _FPTYPE y; /* Y */
-  _FPTYPE t; /* angle */
-  _FPTYPE r; /* modulus */
+  double x; /* X */
+  double y; /* Y */
+  double t; /* angle */
+  double r; /* modulus */
 };
 
 #define O2sum(__sum,__s1,__s2) {			\

@@ -6,15 +6,14 @@
 #ifndef O3_H
 #define O3_H
 #include <math.h>
-typedef double _FPTYPE;
 
 struct O3 {
-    _FPTYPE x; /* X */
-    _FPTYPE y; /* Y */
-    _FPTYPE z; /* Z */
-    _FPTYPE p; /*angle x-y plane arctan(y/x)*/
-    _FPTYPE t; /* angle z-xy arccos(z/r) */
-    _FPTYPE r; /* modulus */
+    double x; /* X */
+    double y; /* Y */
+    double z; /* Z */
+    double p; /*angle x-y plane arctan(y/x)*/
+    double t; /* angle z-xy arccos(z/r) */
+    double r; /* modulus */
 };
 
 #define O3prod(__a,__b) ((__a).x*(__b).x+(__a).y*(__b).y +(__a).z*(__b).z)

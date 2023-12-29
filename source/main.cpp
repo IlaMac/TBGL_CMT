@@ -205,8 +205,8 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
     // Enable compression
     file.setCompressionLevel(0);
 //    // Register the compound type
-    std::vector<hsize_t> rho_dims = {NC};
-    h5pp::hid::h5t HDF5_RHO_TYPE = H5Tarray_create(H5T_NATIVE_DOUBLE,rho_dims.size(),rho_dims.data());
+    std::array<hsize_t, 1> rho_dims = {NC};
+    h5pp::hid::h5t HDF5_RHO_TYPE = H5Tarray_create(H5T_NATIVE_DOUBLE, rho_dims.size(), rho_dims.data());
 
     h5pp::hid::h5t MY_HDF5_MEASURES_TYPE = H5Tcreate(H5T_COMPOUND, sizeof(Measures));
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "E", HOFFSET(Measures, E), H5T_NATIVE_DOUBLE);
@@ -318,27 +318,19 @@ size_t nn(size_t i, size_t coord, int dir){
     size_t iy=(i/Lx)%Ly;
 
     if(coord==0){
-        int ix_new= static_cast<int>(ix + dir / sqrt(dir * dir));
-        if(ix_new==Lx){ ix_new=0;}
+        int ix_new= static_cast<int>(static_cast<int>(ix) + dir / sqrt(dir * dir));
+        if(ix_new==static_cast<int>(Lx)){ ix_new=0;}
         if(ix_new < 0){ ix_new=static_cast<int>(Lx-1);}
         int iy_new=static_cast<int>(iy);
         return (static_cast<size_t>(ix_new) + Lx * (static_cast<size_t>(iy_new)));
 
     }
     if(coord==1){
-        int iy_new= static_cast<int>(iy + dir/sqrt(dir*dir));
+        int iy_new= static_cast<int>(static_cast<int>(iy) + dir/sqrt(dir*dir));
         if(iy_new==static_cast<int>(Ly)){ iy_new=0;}
         if(iy_new<0){ iy_new=static_cast<int>(Ly-1);}
         int ix_new=static_cast<int>(ix);
         return (static_cast<size_t>(ix_new) + Lx * (static_cast<size_t>(iy_new)));
     }
     return 1;
-}
-void myhelp(int argd, char** argu) {
-    int i;
-    fprintf(stderr,"Errore nei parametri su linea di comando; hai scritto:\n");
-    for (i=0;i<argd;i++) fprintf(stderr," %s",argu[i]);
-    fprintf(stderr,"\n");
-    fprintf(stderr,"%s <DIRECTORY_PARAMETERS> <SEED> \n",argu[0]);
-    exit (EXIT_FAILURE);
 }

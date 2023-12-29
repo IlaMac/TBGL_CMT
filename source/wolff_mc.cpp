@@ -110,7 +110,7 @@ void growCluster_BTRS(size_t i, std::vector<size_t> & clusterSpin, const std::ve
     //addProbability for the link i,j has the form: 1- exp(-beta \Delta E_ij) with \Delta E_ij
     double rand=0., addProbability;
     double dE;
-    double inv_h2=1./(Hp.h*Hp.h);
+    [[maybe_unused]] double inv_h2=1./(Hp.h*Hp.h); // TODO: REMOVE UNUSED
 
     ix= i%Lx;
     iy= (i/Lx)%Ly;
@@ -146,7 +146,7 @@ void growCluster_BTRS(size_t i, std::vector<size_t> & clusterSpin, const std::ve
         }
         if (clusterSpin[im]==0){
            dE=0.;
-            for(int alpha=0; alpha<NC; alpha++){
+            for(size_t alpha=0; alpha<NC; alpha++){
                 double new_gauge_phase = Site[i].Psi[alpha].t - Site[im].Psi[alpha].t + Site[i].R_ext[vec] + Hp.h * Hp.e * Site[i].A[vec];
                 double old_gauge_phase = OldPsi[alpha].t - Site[im].Psi[alpha].t + Site[i].R_ext[vec] + Hp.h * Hp.e * Site[i].A[vec];
                 //the modulus remains the same and so the value of cos(2 \phi_12)
@@ -159,7 +159,7 @@ void growCluster_BTRS(size_t i, std::vector<size_t> & clusterSpin, const std::ve
         }
         if (clusterSpin[ip]==0){
             dE=0.;
-            for(int alpha=0; alpha<NC; alpha++){
+            for(size_t alpha=0; alpha<NC; alpha++){
                 double new_gauge_phase = Site[ip].Psi[alpha].t - Site[i].Psi[alpha].t + Site[ip].R_ext[vec] + Hp.h * Hp.e * Site[ip].A[vec];
                 double old_gauge_phase = Site[ip].Psi[alpha].t - OldPsi[alpha].t + Site[ip].R_ext[vec] + Hp.h * Hp.e * Site[ip].A[vec];
                 //the modulus remains the same
@@ -205,7 +205,7 @@ void growCluster_nemK(size_t i, size_t alpha_up, std::vector<size_t> & clusterSp
     size_t ip, im, vec;
     //addProbability for the link i,j has the form: 1- exp(-beta \Delta E_ij) with \Delta E_ij
     double rand=0., addProbability;
-    double inv_h2=1./(Hp.h*Hp.h);
+    [[maybe_unused]] double inv_h2=1./(Hp.h*Hp.h); // TODO: REMOVE UNUSED
 
     size_t ix= i%Lx;
     size_t iy= (i/Lx)%Ly;
@@ -221,7 +221,7 @@ void growCluster_nemK(size_t i, size_t alpha_up, std::vector<size_t> & clusterSp
     NewPsi[1] = Site[i].Psi[1];
 
     /*Rotate the phase of alpha_up by \pi*/
-    NewPsi[alpha_up].t = static_cast<_FPTYPE>(Site[i].Psi[alpha_up].t + C_PI);
+    NewPsi[alpha_up].t = static_cast<double>(Site[i].Psi[alpha_up].t + C_PI);
 
     polar_to_cartesian(NewPsi[0]);
     polar_to_cartesian(NewPsi[1]);
