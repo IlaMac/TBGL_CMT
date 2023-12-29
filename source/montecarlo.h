@@ -1,11 +1,6 @@
 #pragma once
 
-#include "constants.h"
 #include "initialization.h"
-#include "main.h"
-#include "measures.h"
-#include "o2.h"
-#include "rnd.h"
 #include <cstring>
 #include <iostream>
 
