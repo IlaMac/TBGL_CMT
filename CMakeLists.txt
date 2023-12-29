@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.24)
 project(CMT VERSION 1.1
         DESCRIPTION "A CMake project template"
         HOMEPAGE_URL "https://github.com/DavidAce/CMakeTemplate"
-        LANGUAGES CXX)
+        LANGUAGES C CXX)
 
 
 ### Set options
@@ -33,7 +33,13 @@ endif()
 ### Add all source files
 add_executable(CMT
         source/main.cpp 
-        # ...
+        source/initialization.cpp
+        source/wolff_mc.cpp
+        source/pt.cpp
+        source/montecarlo.cpp
+        source/rng.cpp
+        source/measures.cpp
+        source/class_tic_toc.cpp
         )
 target_include_directories(CMT PRIVATE source)
 set_target_properties(CMT PROPERTIES LINK_WHAT_YOU_USE TRUE)

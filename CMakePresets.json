@@ -13,7 +13,7 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "CMT_ENABLE_OPENMP": "TRUE",
-        "CMT_ENABLE_MPI": "FALSE",
+        "CMT_ENABLE_MPI": "TRUE",
         "CMT_ENABLE_TESTS": "TRUE",
         "CMT_ENABLE_ASAN": "FALSE",
         "CMT_ENABLE_USAN": "FALSE",
@@ -25,7 +25,6 @@
         "CMAKE_CXX_EXTENSIONS": "FALSE",
         "CMAKE_POSITION_INDEPENDENT_CODE": "TRUE",
         "THREADS_PREFER_PTHREAD_FLAG": "TRUE",
-        "CMAKE_CXX_FLAGS": "",
         "CMAKE_CXX_FLAGS_DEBUG": "-O0 -g3 -ggdb -fno-omit-frame-pointer",
         "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "-Og -g3 -ggdb -fno-omit-frame-pointer",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "TRUE"
@@ -68,7 +67,39 @@
         "CMAKE_FIND_PACKAGE_PREFER_CONFIG": "TRUE"
       },
       "environment": {
-        "PATH": "$env{HOME}/anaconda3/bin:$env{HOME}/miniconda3/bin:$penv{PATH}"
+        "PATH": "$env{HOME}/anaconda3/bin:$env{HOME}/miniconda3/bin:$env{CLANG_PATH}:$penv{PATH}",
+        "CONAN_PATH": "$env{HOME}/anaconda3/bin:$env{HOME}/miniconda3/bin"
+      }
+    },
+    {
+      "name": "gcc-13",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc-13",
+        "CMAKE_CXX_COMPILER": "g++-13",
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "FALSE"
+      }
+    },
+    {
+      "name": "clang",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_CXX_FLAGS": "-L/usr/local/opt/llvm/lib",
+        "CMAKE_EXE_LINKER_FLAGS" : "-L/usr/local/opt/llvm/lib/c++ -Wl,-rpath,/usr/local/opt/llvm/lib/c++ -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"
+      },
+      "environment": {
+        "PATH": "/usr/local/opt/llvm/bin:$env{CONAN_PATH}:$penv{PATH}",
+        "CLANG_PATH": "/usr/local/opt/llvm/bin"
+      }
+    },
+    {
+      "name": "apple-clang",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
       }
     },
     {
@@ -77,6 +108,36 @@
       "inherits": [
         "release",
         "conan",
+        "default"
+      ]
+    },
+    {
+      "name": "release-conan-gcc-13",
+      "displayName": "Release|conan package manager|gcc-13",
+      "inherits": [
+        "gcc-13",
+        "release",
+        "conan",
+        "default"
+      ]
+    },
+    {
+      "name": "release-conan-clang",
+      "displayName": "Release|conan package manager|clang",
+      "inherits": [
+        "release",
+        "conan",
+        "clang",
+        "default"
+      ]
+    },
+    {
+      "name": "release-conan-apple-clang",
+      "displayName": "Release|conan package manager|apple-clang",
+      "inherits": [
+        "release",
+        "conan",
+        "apple-clang",
         "default"
       ]
     },
@@ -94,6 +155,18 @@
     {
       "name": "release-conan",
       "configurePreset": "release-conan"
+    },
+    {
+      "name": "release-conan-gcc-13",
+      "configurePreset": "release-conan-gcc-13"
+    },
+    {
+      "name": "release-conan-clang",
+      "configurePreset": "release-conan-clang"
+    },
+    {
+      "name": "release-conan-apple-clang",
+      "configurePreset": "release-conan-apple-clang"
     },
     {
       "name": "debug-conan",
