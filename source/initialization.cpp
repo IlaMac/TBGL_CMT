@@ -84,12 +84,12 @@ void initialize_lattice(const std::vector<Node> &Site, const fs::path & director
     fs::path a_init_file = directory_read / "A_restart.bin";
 
     if(RESTART==1){
-        fs::path psi_init_file = directory_read / "Psi_restart.bin";
-        fs::path a_init_file = directory_read / "A_restart.bin";
+        psi_init_file = directory_read / "Psi_restart.bin";
+        a_init_file = directory_read / "A_restart.bin";
     }
     else if (RESTART==2){
-        fs::path psi_init_file = directory_read / "Psi_final.bin";
-        fs::path a_init_file = directory_read / "A_final.bin";
+        psi_init_file = directory_read / "Psi_final.bin";
+        a_init_file = directory_read / "A_final.bin";
     }
 
     /*Initialize external field*/
