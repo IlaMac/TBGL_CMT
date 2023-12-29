@@ -3,10 +3,11 @@
 //
 
 #include "measures.h"
+#include "cfg/cfg.h"
 #include "main.h"
 #include "rnd.h"
 #include "tid/tid.h"
-#include "cfg/cfg.h"
+#include <fmt/format.h>
 
 void energy(struct Measures &mis, struct H_parameters &Hp, const std::vector<Node> &Site){
     using namespace cfg;
@@ -214,13 +215,11 @@ void nematic_order(struct Measures &mis, const std::vector<Node> &Site){
 
 
 
-void save_lattice(const std::vector<Node> &Site, const fs::path & directory_write, const std::string configuration){
+void save_lattice(const std::vector<Node> &Site, const fs::path & directory_write, const std::string & configuration){
     auto t_save = tid::tic_scope(__FUNCTION__);
 
-    std::string sPsi;
-    std::string sA;
-    sPsi= std::string("Psi_")+ configuration + std::string(".bin");
-    sA= std::string("A_")+ configuration + std::string(".bin");
+    auto sPsi = fmt::format("Psi_{}.bin", configuration);
+    auto sA = fmt::format("A_{}.bin",configuration);
     fs::path psi_init_file = directory_write / sPsi;
     fs::path a_init_file = directory_write / sA;
 
@@ -243,11 +242,9 @@ void save_lattice(const std::vector<Node> &Site, const fs::path & directory_writ
 
 }
 
-void save_lattice_chargezero(const std::vector<Node> &Site, const fs::path & directory_write, const std::string configuration){
+void save_lattice_chargezero(const std::vector<Node> &Site, const fs::path & directory_write, const std::string &configuration){
     auto t_save = tid::tic_scope(__FUNCTION__);
-
-    std::string sPsi;
-    sPsi= std::string("Psi_")+ configuration + std::string(".bin");
+    auto sPsi= fmt::format("Psi_{}.bin", configuration);
     fs::path psi_init_file = directory_write / sPsi;
 
     FILE *fPsi= nullptr;
