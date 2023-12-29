@@ -3,12 +3,12 @@
 //
 
 #include "measures.h"
-#include "class_tic_toc.h"
 #include "main.h"
 #include "rnd.h"
+#include "tid/tid.h"
 
 void energy(struct Measures &mis, struct H_parameters &Hp, const std::vector<Node> &Site){
-
+    auto t_energy = tid::tic_scope(__FUNCTION__);
     double h_Kinetic=0., h_Josephson=0., h_B=0., h_lambda=0.;
     double F_A=0;
     double gauge_phase;
@@ -65,7 +65,7 @@ void energy(struct Measures &mis, struct H_parameters &Hp, const std::vector<Nod
 
 
 void helicity_modulus(struct Measures &mis, struct H_parameters &Hp, const std::vector<Node> &Site){
-
+    auto t_helicity = tid::tic_scope(__FUNCTION__);
     double J_alpha=0., DJ_alpha_Dd=0.;
     size_t vec=0; //helicity modulus computed along the x direction
     double gauge_phase1;
@@ -90,7 +90,7 @@ void helicity_modulus(struct Measures &mis, struct H_parameters &Hp, const std::
 
 
 void dual_stiffness(struct Measures &mis, struct H_parameters &Hp, const std::vector<Node> &Site){
-
+    auto t_dual = tid::tic_scope(__FUNCTION__);
     long double qx_min=C_TWO_PI/(Lx);
     long double invNorm= 1./((C_TWO_PI)*(C_TWO_PI)*N);
     double Re_rhoz=0.;
@@ -113,6 +113,7 @@ void dual_stiffness(struct Measures &mis, struct H_parameters &Hp, const std::ve
 
 void Z2_magnetization(struct Measures &mis, const std::vector<Node> &Site){
     //The Ising parameter m(x,y)=+/-1 indicates the chirality between the two phases.
+    auto t_Z2 = tid::tic_scope(__FUNCTION__);
 
     long double phi_shifted=0.;
     for (size_t iy = 0; iy < Ly; iy++) {
@@ -137,6 +138,7 @@ void Z2_magnetization(struct Measures &mis, const std::vector<Node> &Site){
 }
 
 void magnetization_singlephase(struct Measures &mis, const std::vector<Node> &Site){
+    auto t_magnetization = tid::tic_scope(__FUNCTION__);
     double cos_phi[NC]={0}, sin_phi[NC]={0};
     auto inv_N= 1. / static_cast<double>(N);
 
@@ -154,7 +156,7 @@ void magnetization_singlephase(struct Measures &mis, const std::vector<Node> &Si
 }
 
 void nematic_order(struct Measures &mis, const std::vector<Node> &Site){
-
+    auto t_nematic = tid::tic_scope(__FUNCTION__);
     long double gamma_temp;
     long double theta_temp;
     for (size_t iy = 0; iy < Ly; iy++) {
@@ -205,6 +207,7 @@ void nematic_order(struct Measures &mis, const std::vector<Node> &Site){
 
 
 void save_lattice(const std::vector<Node> &Site, const fs::path & directory_write, const std::string configuration){
+    auto t_save = tid::tic_scope(__FUNCTION__);
 
     std::string sPsi;
     std::string sA;
@@ -233,6 +236,7 @@ void save_lattice(const std::vector<Node> &Site, const fs::path & directory_writ
 }
 
 void save_lattice_chargezero(const std::vector<Node> &Site, const fs::path & directory_write, const std::string configuration){
+    auto t_save = tid::tic_scope(__FUNCTION__);
 
     std::string sPsi;
     sPsi= std::string("Psi_")+ configuration + std::string(".bin");

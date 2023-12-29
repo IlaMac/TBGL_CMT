@@ -1,9 +1,9 @@
 #include "main.h"
-#include "class_tic_toc.h"
 #include "initialization.h"
 #include "measures.h"
 #include "memory_check.h"
 #include "rnd.h"
+#include "tid/tid.h"
 #include <csignal>
 #include <cstdlib>
 #include <cstring>
@@ -64,7 +64,6 @@ void signal_callback_handler(int signum) {
 size_t Lx, Ly, N;
 
 int main(int argc, char *argv[]){
-    //auto t_main = tid::tic_scope("main");
     std::vector <Node> Lattice;
     struct H_parameters Hp{};
     struct MC_parameters MCp{};
@@ -76,7 +75,7 @@ int main(int argc, char *argv[]){
     int RESTART=0;
     int NSTART=0;
 
-    class_tic_toc t_tot(true,5,"Benchmark tot");
+
 
     std::string directory_read;
     std::string directory_parameters;
@@ -149,7 +148,7 @@ int main(int argc, char *argv[]){
 /*DETERMINE TOTAL NUMBER OF PROCESSORS*/
     MPI_Comm_size(MPI_COMM_WORLD, &PTp.np);
 
-    t_tot.tic();
+    auto t_tot = tid::tic_scope(fmt::format("TBGL", PTp.rank));
 
     if(PTp.rank == PTp.root) {
         //Initialization ranks arrays
@@ -179,18 +178,14 @@ int main(int argc, char *argv[]){
     std::cout << "Proccess maximum virtual  ram usage: " << process_memory_in_mb("VmPeak") << " MB" << std::endl;
     MPI_Barrier(MPI_COMM_WORLD);
 
-    t_tot.print_measured_time();
+    if(PTp.rank == PTp.root)
+        for(const auto &t : tid::get_tree("TBGL", tid::level::normal)) fmt::print("{}\n", t.str());
     MPI_Barrier(MPI_COMM_WORLD);
 
     return 0;
 }
 
 void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp, double &my_beta, int &my_ind, struct PT_parameters PTp, struct PTroot_parameters PTroot, std::string directory_parameters_temp, int NSTART) {
-
-    class_tic_toc t_h5pp(true,5,"Benchmark h5pp");
-    class_tic_toc t_metropolis(true,5,"Benchmark metropolis");
-    class_tic_toc t_measures(true,5,"Benchmark measures");
-
     /*Measurements*/
     Measures mis;
 
@@ -255,16 +250,13 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
     if(NSTART==0){
         /**Thermalization**/
         for (int t = 0; t < MCp.transient; t++) {
-            t_metropolis.tic();
-            metropolis(Site, MCp, Hp,  my_beta);
-            t_metropolis.toc();
+            metropolis(Site, MCp, Hp, my_beta);
         }
     }
     for (int nM = NSTART; nM<MCp.nmisu; nM++) {
         for (int t = 0; t < MCp.tau; t++) {
-            t_metropolis.tic();
-            metropolis(Site, MCp, Hp,  my_beta);
-            t_metropolis.toc();
+
+            metropolis(Site, MCp, Hp, my_beta);
             if(Hp.K>4){
                 wolff_BTRS(Site, MCp, Hp, my_beta);
             }
@@ -272,28 +264,31 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
                 wolff_nemK(Site, MCp, Hp, my_beta);
             }
         }
-        //Measures
-        t_measures.tic();
-        mis.reset();
-    	energy(mis, Hp, Site);
+        {
+            //Measure
+            auto t_measure = tid::tic_scope("measure");
+            mis.reset();
+            energy(mis, Hp, Site);
 
-        if(Hp.K<0){
-            nematic_order(mis, Site);
+            if(Hp.K<0){
+                nematic_order(mis, Site);
+            }
+
+            Z2_magnetization(mis, Site);
+            helicity_modulus(mis, Hp, Site);
+            magnetization_singlephase(mis,  Site);
+
+            if(Hp.e !=0) {
+                dual_stiffness(mis, Hp, Site);
+            }
+            mis.my_rank=PTp.rank;
         }
 
-        Z2_magnetization(mis, Site);
-        helicity_modulus(mis, Hp, Site);
-        magnetization_singlephase(mis,  Site);
 
-        if(Hp.e !=0) {
-            dual_stiffness(mis, Hp, Site);
+        {
+            auto t_h5pp = tid::tic_token("h5pp");
+            file.appendTableRecords(mis, "Measurements");
         }
-        mis.my_rank=PTp.rank;
-        t_measures.toc();
-
-        t_h5pp.tic();
-        file.appendTableRecords(mis, "Measurements");
-        t_h5pp.toc();
         MPI_Barrier(MPI_COMM_WORLD);
 
         std::ofstream restart_file(directory_write_temp+"/restart-0");
@@ -317,10 +312,6 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
         file = h5pp::File(directory_write_temp+"/Output.h5", h5pp::FilePermission::READWRITE);
     }
     save_lattice(Site, directory_write_temp, std::string("final"));
-
-    t_h5pp.print_measured_time_w_percent();
-    t_measures.print_measured_time_w_percent();
-    t_metropolis.print_measured_time_w_percent();
 }
 
 size_t nn(size_t i, size_t coord, int dir){

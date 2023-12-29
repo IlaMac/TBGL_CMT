@@ -39,7 +39,9 @@ add_executable(CMT
         source/montecarlo.cpp
         source/rnd.cpp
         source/measures.cpp
-        source/class_tic_toc.cpp
+        source/tid/tid.cpp
+        source/tid/token.cpp
+        source/tid/ur.cpp
         )
 target_include_directories(CMT PRIVATE source)
 set_target_properties(CMT PROPERTIES LINK_WHAT_YOU_USE TRUE)

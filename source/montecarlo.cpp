@@ -1,10 +1,10 @@
 #include "montecarlo.h"
-#include "class_tic_toc.h"
 #include "main.h"
 #include "rnd.h"
+#include "tid/tid.h"
 
 void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp,  double my_beta){
-
+    auto t_metropolis = tid::tic_scope(__FUNCTION__);
     double l, d_theta, d_A, rand;
     double acc_rate=0.5, acc_A=0., acc_theta=0.;
     std::array<O2, NC> NewPsi;

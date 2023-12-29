@@ -1,6 +1,5 @@
 #pragma once
 
-#include "class_tic_toc.h"
 #include "constants.h"
 #include "initialization.h"
 #include "main.h"

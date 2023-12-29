@@ -3,9 +3,9 @@
 //
 
 #include "wolff_mc.h"
+#include "tid/tid.h"
 
-
-//void growCluster_density(int i, int* clusterSpin, const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp, double my_beta){
+// void growCluster_density(int i, int* clusterSpin, const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp, double my_beta){
 //
 //    std::array<O2, NC> NewPsi;
 //    std::array<O2, NC> OldPsi;
@@ -173,7 +173,7 @@ void growCluster_BTRS(size_t i, std::vector<size_t> & clusterSpin, const std::ve
 }
 
 void wolff_BTRS(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp, double my_beta){
-
+    auto t_wolff = tid::tic_scope(__FUNCTION__);
     size_t  count=0;
     std::vector<size_t> clusterSpin(N,0); //vector of int of size N filled with 0
 
