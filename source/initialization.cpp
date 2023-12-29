@@ -133,10 +133,10 @@ void initialize_lattice(const std::vector<Node> &Site, const fs::path & director
         else if(Hp.init==2) { //ground state K<0; lambda>0; gamma=C_PI
             double gamma=C_PI;
             for (size_t i = 0; i < N; i++) {
-                Site[i].Psi[0].t =  sqrt(rn::uniform_real_box(0, 1));
+                Site[i].Psi[0].t =  sqrt(rnd::uniform_double_box(0, 1));
                 Site[i].Psi[0].r = sqrt(cos(gamma/2)*cos(gamma/2));
                 polar_to_cartesian(Site[i].Psi[0]);
-                Site[i].Psi[1].t = sqrt(rn::uniform_real_box(0, 1));
+                Site[i].Psi[1].t = sqrt(rnd::uniform_double_box(0, 1));
                 Site[i].Psi[1].r = sqrt(sin(gamma/2)*sin(gamma/2));
                 polar_to_cartesian(Site[i].Psi[1]);
             }
@@ -153,10 +153,10 @@ void initialize_lattice(const std::vector<Node> &Site, const fs::path & director
         }
         else if((Hp.init<0) or (Hp.init>3)) { //Random
             for (size_t i = 0; i < N; i++) {
-                Site[i].Psi[0].r = sqrt(rn::uniform_real_box(0, 1));
+                Site[i].Psi[0].r = sqrt(rnd::uniform_double_box(0, 1));
                 Site[i].Psi[1].r= sqrt(1. - Site[i].Psi[0].r*Site[i].Psi[0].r);
                 for (int alpha = 0; alpha < NC; alpha++) {
-                    Site[i].Psi[alpha].t = rn::uniform_real_box(0, C_TWO_PI);
+                    Site[i].Psi[alpha].t = rnd::uniform_double_box(0, C_TWO_PI);
                     polar_to_cartesian(Site[i].Psi[alpha]);
                 }
             }

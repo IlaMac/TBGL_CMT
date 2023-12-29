@@ -4,17 +4,16 @@
 
 #pragma once
 
-
 #include "constants.h"
+#include "o2.h"
+#include "rnd.h"
 #include "robust_filesystem.h"
-#include "rng.h"
+#include <array>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
-#include "o2.h"
-#include <array>
 
 struct Node{
     /*Fluctuating vector potential, with DIM spatial dimensions*/

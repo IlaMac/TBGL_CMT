@@ -37,7 +37,7 @@ add_executable(CMT
         source/wolff_mc.cpp
         source/pt.cpp
         source/montecarlo.cpp
-        source/rng.cpp
+        source/rnd.cpp
         source/measures.cpp
         source/class_tic_toc.cpp
         )
@@ -55,7 +55,8 @@ include(cmake/CompilerFlags.cmake)
 ### Find dependencies
 find_package(h5pp   1.11.0 REQUIRED)
 find_package(Eigen3 3.4.0  REQUIRED)
-target_link_libraries(cmt-libs INTERFACE h5pp::h5pp Eigen3::Eigen)
+find_package(pcg-cpp       REQUIRED)
+target_link_libraries(cmt-libs INTERFACE h5pp::h5pp Eigen3::Eigen pcg-cpp::pcg-cpp)
 
 if(CMT_ENABLE_OPENMP)
     find_package(OpenMP COMPONENTS CXX REQUIRED) # Uses DMRG's own find module

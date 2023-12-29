@@ -58,7 +58,7 @@
 //                dE-=inv_h2 * (Site[i].Psi[alpha].r* Site[im].Psi[alpha].r)*(cos(new_gauge_phase) - cos(old_gauge_phase));
 //            }
 //            addProbability=1-exp(-my_beta*dE);
-//            rand= rn::uniform_real_box(0, 1);;
+//            rand= rnd::uniform_double_box(0, 1);;
 //            if (rand < addProbability){
 //                growCluster(im, clusterSpin, Site, MCp, Hp, my_beta);}
 //        }
@@ -71,7 +71,7 @@
 //                dE-=inv_h2 * (Site[i].Psi[alpha].r* Site[ip].Psi[alpha].r)*(cos(new_gauge_phase) - cos(old_gauge_phase));
 //            }
 //            addProbability=1-exp(-my_beta*dE);
-//            rand= rn::uniform_real_box(0, 1);;
+//            rand= rnd::uniform_double_box(0, 1);;
 //            if (rand < addProbability){
 //                growCluster(ip, clusterSpin, Site, MCp, Hp, my_beta);}
 //        }
@@ -86,7 +86,7 @@
 //    int clusterSpin[N]={0};
 //
 //    /*choose randomly a site of the lattice*/
-//    iseed = rn::uniform_integer_box(0, N-1);
+//    iseed = rnd::uniform_integer_box(0, N-1);
 //
 //    growCluster(iseed, clusterSpin, Site, MCp, Hp, my_beta);
 //
@@ -151,7 +151,7 @@ void growCluster_BTRS(size_t i, std::vector<size_t> & clusterSpin, const std::ve
                 dE-= (Site[i].Psi[alpha].r* Site[im].Psi[alpha].r)*(cos(new_gauge_phase) - cos(old_gauge_phase));
             }
             addProbability=1-exp(-my_beta*dE);
-            rand= rn::uniform_real_box(0, 1);;
+            rand= rnd::uniform_double_box(0, 1);;
             if (rand < addProbability){
                 growCluster_BTRS(im, clusterSpin, Site, MCp, Hp, my_beta);}
         }
@@ -164,7 +164,7 @@ void growCluster_BTRS(size_t i, std::vector<size_t> & clusterSpin, const std::ve
                 dE-= (Site[i].Psi[alpha].r* Site[ip].Psi[alpha].r)*(cos(new_gauge_phase) - cos(old_gauge_phase));
             }
             addProbability=1-exp(-my_beta*dE);
-            rand= rn::uniform_real_box(0, 1);;
+            rand= rnd::uniform_double_box(0, 1);;
             if (rand < addProbability){
                 growCluster_BTRS(ip, clusterSpin, Site, MCp, Hp, my_beta);}
         }
@@ -178,7 +178,7 @@ void wolff_BTRS(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
     std::vector<size_t> clusterSpin(N,0); //vector of int of size N filled with 0
 
     /*choose randomly a site of the lattice*/
-    auto iseed = static_cast<size_t>(rn::uniform_integer_box(0, N - 1));
+    auto iseed = rnd::uniform_integer_box<size_t>(0, N - 1);
 
     growCluster_BTRS(iseed, clusterSpin, Site, MCp, Hp, my_beta);
 
@@ -242,7 +242,7 @@ void growCluster_nemK(size_t i, size_t alpha_up, std::vector<size_t> & clusterSp
             //the modulus remains the same
             double dE= -(Site[i].Psi[alpha_up].r* Site[im].Psi[alpha_up].r)*(cos(new_gauge_phase) - cos(old_gauge_phase));
             addProbability=1-exp(-my_beta*dE);
-            rand= rn::uniform_real_box(0, 1);;
+            rand= rnd::uniform_double_box(0, 1);;
             if (rand < addProbability){
                 growCluster_nemK(im, alpha_up, clusterSpin, Site, MCp, Hp, my_beta);}
         }
@@ -252,7 +252,7 @@ void growCluster_nemK(size_t i, size_t alpha_up, std::vector<size_t> & clusterSp
             //the modulus remains the same
             double dE= -(Site[i].Psi[alpha_up].r* Site[ip].Psi[alpha_up].r)*(cos(new_gauge_phase) - cos(old_gauge_phase));
             addProbability=1-exp(-my_beta*dE);
-            rand= rn::uniform_real_box(0, 1);;
+            rand= rnd::uniform_double_box(0, 1);;
             if (rand < addProbability){
                 growCluster_nemK(ip, alpha_up, clusterSpin, Site, MCp, Hp, my_beta);}
         }
@@ -266,10 +266,10 @@ void wolff_nemK(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
     std::vector<size_t> clusterSpin(N,0); //vector of int of size N filled with 0
 
     /*choose randomly a site of the lattice*/
-    auto iseed = static_cast<size_t>(rn::uniform_integer_box(0, N - 1));
+    auto iseed = rnd::uniform_integer_box<size_t>(0, N - 1);
 
     /*choose randomly which of the two phases will be updated*/
-    auto alpha_up = static_cast<size_t>(rn::uniform_integer_box(0, 1));
+    auto alpha_up = rnd::uniform_integer_box<size_t>(0, 1);
     std::cout<< alpha_up<< std::endl;
 
     growCluster_nemK(iseed, alpha_up, clusterSpin, Site, MCp, Hp, my_beta);

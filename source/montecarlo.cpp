@@ -1,7 +1,7 @@
 #include "montecarlo.h"
-#include "main.h"
-#include "rng.h"
 #include "class_tic_toc.h"
+#include "main.h"
+#include "rnd.h"
 
 void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp,  double my_beta){
 
@@ -17,7 +17,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
         for (int ix = 0; ix < Lx; ix++) {
             int i = ix + Lx * (iy);
             /*choose randomly a site of the lattice*/
-            //i = rn::uniform_integer_box(0, N-1);
+            //i = rnd::uniform_integer_box(0, N-1);
             //ix=i%Lx;
             //iy=i/Ly;
             if(Hp.london_app == 0) {
@@ -26,7 +26,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
                 OldPsi[1] = Site[i].Psi[1];
                 NewPsi[0] = Site[i].Psi[0];
                 NewPsi[1] = Site[i].Psi[1];
-                l = rn::uniform_real_box(0, 1);
+                l = rnd::uniform_double_box(0, 1);
                 NewPsi[0].r = sqrt(l);
                 NewPsi[1].r = sqrt(1 - l);
                 polar_to_cartesian(NewPsi[0]);
@@ -39,7 +39,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
                     Site[i].Psi[1] = NewPsi[1];
                     //oldE = newE; //I don't have to recompute oldE
                 } else {
-                    rand = rn::uniform_real_box(0, 1);
+                    rand = rnd::uniform_double_box(0, 1);
                     //Boltzmann weight: exp(-\beta \Delta E) E= h³ \sum_i E(i)
                     if (rand < exp(my_beta * minus_deltaE)) {
                         Site[i].Psi[0] = NewPsi[0];
@@ -56,7 +56,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
 //                    OldPsi[1] = Site[i].Psi[1];
 //                    NewPsi[0] = Site[i].Psi[0];
 //                    NewPsi[1] = Site[i].Psi[1];
-//                    l = rn::uniform_real_box(0, 1);
+//                    l = rnd::uniform_double_box(0, 1);
 //                    NewPsi[alpha].r = sqrt(l);
 //                    polar_to_cartesian(NewPsi[alpha]);
 //                    oldE = local_HPsi(OldPsi, ix, iy, Hp, Site);
@@ -66,7 +66,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
 //                        Site[i].Psi[alpha] = NewPsi[alpha];
 //                        //oldE = newE; //I don't have to recompute oldE
 //                    } else {
-//                        rand = rn::uniform_real_box(0, 1);
+//                        rand = rnd::uniform_double_box(0, 1);
 //                        //Boltzmann weight: exp(-\beta \Delta E) E= h³ \sum_i E(i)
 //                        if (rand < exp(my_beta * minus_deltaE)) {
 //                            Site[i].Psi[alpha] = NewPsi[alpha];
@@ -82,7 +82,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
                 OldPsi[1] = Site[i].Psi[1];
                 NewPsi[0] = Site[i].Psi[0];
                 NewPsi[1] = Site[i].Psi[1];
-                d_theta = rn::uniform_real_box(-MCp.lbox_theta, MCp.lbox_theta);
+                d_theta = rnd::uniform_double_box(-MCp.lbox_theta, MCp.lbox_theta);
                 NewPsi[alpha].t = fmod(OldPsi[alpha].t + d_theta, C_TWO_PI);
                 NewPsi[alpha].r = OldPsi[alpha].r;
                 polar_to_cartesian(NewPsi[alpha]);
@@ -93,7 +93,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
                     Site[i].Psi[alpha] = NewPsi[alpha];
                     acc_theta++;
                 } else {
-                    rand = rn::uniform_real_box(0, 1);
+                    rand = rnd::uniform_double_box(0, 1);
                     //Boltzmann weight: exp(-\beta \Delta E) E= h³ \sum_i E(i)
                     if (rand < exp(my_beta * minus_deltaE)) {
                         Site[i].Psi[alpha] = NewPsi[alpha];
@@ -113,7 +113,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
                     //Update of A
                     OldA = Site[i].A[vec];
                     oldE = local_HA(OldA, ix, iy, vec, Hp, Site);
-                    d_A = rn::uniform_real_box(-MCp.lbox_A, MCp.lbox_A);
+                    d_A = rnd::uniform_double_box(-MCp.lbox_A, MCp.lbox_A);
                     NewA = OldA + d_A;
                     newE = local_HA(NewA, ix, iy, vec, Hp, Site);
                     minus_deltaE = h2 * (oldE - newE);
@@ -121,7 +121,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
                         Site[i].A[vec] = NewA;
                         acc_A++;
                     } else {
-                        rand = rn::uniform_real_box(0, 1);
+                        rand = rnd::uniform_double_box(0, 1);
                         //Boltzmann weight: exp(-\beta E) E= h³ \sum_i E(i)
                         if (rand < exp(my_beta * minus_deltaE)) {
                             Site[i].A[vec] = NewA;

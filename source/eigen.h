@@ -1,18 +1,18 @@
 
 #ifndef MAIN_H
 #define MAIN_H
-#include<cstdio>
-#include<cmath>
-#include<cstdlib>
-#include <iostream>
-#include <fstream>
-#include <random>
-#include "o2.h"
-#include "montecarlo.h"
 #include "initialization.h"
+#include "montecarlo.h"
+#include "o2.h"
+#include "rnd.h"
 #include "robust_filesystem.h"
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
 #include <mpi.h>
-#include "rng.h"
+#include <random>
 
 #define NC 3 /*Number of components*/
 

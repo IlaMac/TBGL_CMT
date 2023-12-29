@@ -1,16 +1,15 @@
 #include "main.h"
+#include "class_tic_toc.h"
 #include "initialization.h"
 #include "measures.h"
 #include "memory_check.h"
-#include "rng.h"
-#include <cstring>
-#include <h5pp/h5pp.h>
-#include <string>
-#include "class_tic_toc.h"
-#include <iostream>
+#include "rnd.h"
 #include <csignal>
 #include <cstdlib>
-
+#include <cstring>
+#include <h5pp/h5pp.h>
+#include <iostream>
+#include <string>
 
 void clean_up() {
     int rank;
@@ -134,7 +133,7 @@ int main(int argc, char *argv[]){
     #endif
 
     //initialization of the random number generator
-    rn::seed(seednumber);
+    rnd::seed(seednumber);
 
     //Declaration of structure Lattice
     Lattice.resize(N);

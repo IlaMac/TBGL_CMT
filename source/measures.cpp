@@ -3,9 +3,9 @@
 //
 
 #include "measures.h"
-#include "main.h"
-#include "rng.h"
 #include "class_tic_toc.h"
+#include "main.h"
+#include "rnd.h"
 
 void energy(struct Measures &mis, struct H_parameters &Hp, const std::vector<Node> &Site){
 
