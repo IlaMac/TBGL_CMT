@@ -1,4 +1,6 @@
 #include "main.h"
+#include "cfg/cfg.h"
+#include "cli/cli.h"
 #include "initialization.h"
 #include "measures.h"
 #include "memory_check.h"
@@ -12,17 +14,18 @@
 #include <string>
 
 void clean_up() {
+    using namespace cfg;
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    std::string src_file= h5pp::format("{}/beta_{}/Output.h5",paths_dir::TEMP_DIROUT,  rank);
-    std::string tgt_file= h5pp::format("{}/beta_{}/Output.h5",paths_dir::DIROUT,  rank);
+    std::string src_file= h5pp::format("{}/beta_{}/Output.h5",paths_dir::directory_parameters_temp,  rank);
+    std::string tgt_file= h5pp::format("{}/beta_{}/Output.h5",paths_dir::directory_parameters,  rank);
 
     MPI_Barrier(MPI_COMM_WORLD);
     MPI_Finalize();
 
     if(src_file == tgt_file) return;
 
-    fs::copy(paths_dir::TEMP_DIROUT, paths_dir::DIROUT , fs::copy_options::overwrite_existing | fs::copy_options::recursive );
+    fs::copy(paths_dir::directory_parameters_temp, paths_dir::directory_parameters , fs::copy_options::overwrite_existing | fs::copy_options::recursive );
     h5pp::hdf5::moveFile(src_file, tgt_file, h5pp::FilePermission::REPLACE);
     std::cout<<"Exit"<<std::endl;
 }
@@ -61,7 +64,6 @@ void signal_callback_handler(int signum) {
     #endif
 }
 
-size_t Lx, Ly, N;
 
 int main(int argc, char *argv[]){
     std::vector <Node> Lattice;
@@ -69,48 +71,45 @@ int main(int argc, char *argv[]){
     struct MC_parameters MCp{};
     struct PT_parameters PTp;
     struct PTroot_parameters PTroot;
-    long int seednumber=-1; /*by default it is a negative number which means that rng will use random_device*/
     double my_beta=0.244;
     int my_ind=0;
-    int RESTART=0;
     int NSTART=0;
+    using namespace cfg;
+
+    cli::parse(argc, argv);
 
 
 
-    std::string directory_read;
-    std::string directory_parameters;
-    std::string directory_parameters_temp;
-
-    if(argc > 6 ){
-        printf("Too many arguments!");
-        myhelp(argc, argv);
-    }
-    else if(argc < 4){
-        printf("Not enough arguments --> Default Initialization. \n");
-        myhelp(argc, argv);
-    }
-    else if(argc ==4) {
-        /*Rude way*/
-        Lx=Ly= static_cast<size_t>(std::atoi(argv[1]));
-        N=Lx*Ly;
-        paths_dir::DIROUT=directory_parameters = argv[2];
-        paths_dir::TEMP_DIROUT=directory_parameters_temp = argv[3];
-    }
-    else if(argc == 5){
-        Lx=Ly= static_cast<size_t>(std::atoi(argv[1]));
-        N=Lx*Ly;
-        paths_dir::DIROUT=directory_parameters = argv[2];
-        paths_dir::TEMP_DIROUT=directory_parameters_temp = argv[3];
-        RESTART= std::atoi(argv[4]);
-    }
-    else if(argc == 6){
-        Lx=Ly= static_cast<size_t>(std::atoi(argv[1]));
-        N=Lx*Ly;
-        paths_dir::DIROUT=directory_parameters = argv[2];
-        paths_dir::TEMP_DIROUT=directory_parameters_temp = argv[3];
-        RESTART= std::atoi(argv[4]);
-        seednumber= reinterpret_cast<long> (argv[5]);
-    }
+//    if(argc > 6 ){
+//        printf("Too many arguments!");
+//        myhelp(argc, argv);
+//    }
+//    else if(argc < 4){
+//        printf("Not enough arguments --> Default Initialization. \n");
+//        myhelp(argc, argv);
+//    }
+//    else if(argc ==4) {
+//        /*Rude way*/
+//        Lx=Ly= static_cast<size_t>(std::atoi(argv[1]));
+//        N=Lx*Ly;
+//        paths_dir::DIROUT=directory_parameters = argv[2];
+//        paths_dir::TEMP_DIROUT=directory_parameters_temp = argv[3];
+//    }
+//    else if(argc == 5){
+//        Lx=Ly= static_cast<size_t>(std::atoi(argv[1]));
+//        N=Lx*Ly;
+//        paths_dir::DIROUT=directory_parameters = argv[2];
+//        paths_dir::TEMP_DIROUT=directory_parameters_temp = argv[3];
+//        RESTART= std::atoi(argv[4]);
+//    }
+//    else if(argc == 6){
+//        Lx=Ly= static_cast<size_t>(std::atoi(argv[1]));
+//        N=Lx*Ly;
+//        paths_dir::DIROUT=directory_parameters = argv[2];
+//        paths_dir::TEMP_DIROUT=directory_parameters_temp = argv[3];
+//        RESTART= std::atoi(argv[4]);
+//        seednumber= reinterpret_cast<long> (argv[5]);
+//    }
 
     //Safe exit
     // Register termination codes and what to do in those cases
@@ -138,9 +137,9 @@ int main(int argc, char *argv[]){
     Lattice.resize(N);
 
     //Initialize H_parameters: file "H_init.txt"
-    initialize_Hparameters(Hp, directory_parameters);
+    initialize_Hparameters(Hp);
     //Initialize MC_parameters: file "MC_init.txt"
-    initialize_MCparameters(MCp, directory_parameters);
+    initialize_MCparameters(MCp);
 
     MPI_Init(nullptr, nullptr); /* START MPI */
 /*DETERMINE RANK OF THIS PROCESSOR*/
@@ -158,8 +157,8 @@ int main(int argc, char *argv[]){
     MPI_Scatter(PTroot.rank_to_ind.data(), 1, MPI_INT, &my_ind, 1, MPI_INT, PTp.root, MPI_COMM_WORLD);
 
     printf("I'm rank %d and this is my beta %lf\n", PTp.rank, my_beta);
-    directory_read=directory_parameters+"/beta_"+std::to_string(my_ind);
-    initialize_lattice(Lattice, directory_read, RESTART, Hp);
+    auto directory_read = fmt::format("{}/beta_{}",cfg::paths_dir::directory_parameters, my_ind);
+    initialize_lattice(Lattice, directory_read, Hp);
 
     if(RESTART==1){
         std::fstream restart_file(directory_read+"/restart-0", std::ios::in);
@@ -169,7 +168,7 @@ int main(int argc, char *argv[]){
     }
 
     //Mainloop
-    mainloop(Lattice, MCp, Hp, my_beta, my_ind, PTp, PTroot, directory_parameters_temp, NSTART);
+    mainloop(Lattice, MCp, Hp, my_beta, my_ind, PTp, PTroot, NSTART);
 
     t_tot.toc();
 
@@ -185,12 +184,11 @@ int main(int argc, char *argv[]){
     return 0;
 }
 
-void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp, double &my_beta, int &my_ind, struct PT_parameters PTp, struct PTroot_parameters PTroot, std::string directory_parameters_temp, int NSTART) {
+void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp, double &my_beta, int &my_ind, struct PT_parameters PTp, struct PTroot_parameters PTroot, int NSTART) {
     /*Measurements*/
     Measures mis;
 
-    std::string directory_write_temp;
-    directory_write_temp=directory_parameters_temp+"/beta_"+std::to_string(my_ind);
+    auto directory_write_temp = fmt::format("{}/beta_{}", cfg::paths_dir::directory_parameters_temp , my_ind);
     h5pp::File file;
 
     // Initialize a file
@@ -308,14 +306,14 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
         //Parallel Tempering swap
         parallel_temp(mis.E, my_beta, my_ind, PTp, PTroot);
         //Files and directory
-        directory_write_temp=directory_parameters_temp+"/beta_"+std::to_string(my_ind);
+        directory_write_temp = fmt::format("{}/beta_{}", cfg::paths_dir::directory_parameters_temp, my_ind);
         file = h5pp::File(directory_write_temp+"/Output.h5", h5pp::FilePermission::READWRITE);
     }
     save_lattice(Site, directory_write_temp, std::string("final"));
 }
 
 size_t nn(size_t i, size_t coord, int dir){
-
+    using namespace cfg;
     size_t ix=i%Lx;
     size_t iy=(i/Lx)%Ly;
 

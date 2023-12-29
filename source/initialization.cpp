@@ -4,11 +4,12 @@
 #include "initialization.h"
 #include "robust_filesystem.h"
 #include "tid/tid.h"
-
-void initialize_Hparameters(struct H_parameters &Hp, const fs::path & directory_parameters){
+#include "cfg/cfg.h"
+#include "fmt/core.h"
+void initialize_Hparameters(struct H_parameters &Hp){
     auto t_init = tid::tic_scope(__FUNCTION__);
 
-    fs::path hp_init_file = directory_parameters / "HP_init.txt";
+    fs::path hp_init_file = fmt::format("{}/HP_init.txt", cfg::paths_dir::directory_parameters);
 
 
     if(fs::exists(hp_init_file)){
@@ -45,9 +46,9 @@ void initialize_Hparameters(struct H_parameters &Hp, const fs::path & directory_
 
 }
 
-void initialize_MCparameters(struct MC_parameters &MCp, const fs::path & directory_parameters){
+void initialize_MCparameters(struct MC_parameters &MCp){
     auto t_init = tid::tic_scope(__FUNCTION__);
-    fs::path mc_init_file = directory_parameters / "MC_init.txt";
+    fs::path mc_init_file = fmt::format("{}/MC_init.txt", cfg::paths_dir::directory_parameters);
     if(fs::exists(mc_init_file)){
         FILE *fin= nullptr;
         if((fin=fopen(mc_init_file.c_str(), "r"))) {
@@ -73,9 +74,9 @@ void initialize_MCparameters(struct MC_parameters &MCp, const fs::path & directo
 
 }
 
-void initialize_lattice(const std::vector<Node> &Site, const fs::path & directory_read, int RESTART, struct H_parameters &Hp){
+void initialize_lattice(const std::vector<Node> &Site, const fs::path & directory_read, struct H_parameters &Hp){
+    using namespace cfg;
     auto t_init = tid::tic_scope(__FUNCTION__);
-
     fs::path psi_init_file = directory_read / "Psi_restart.bin";
     fs::path a_init_file = directory_read / "A_restart.bin";
 

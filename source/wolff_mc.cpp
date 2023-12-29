@@ -4,6 +4,7 @@
 
 #include "wolff_mc.h"
 #include "tid/tid.h"
+#include "cfg/cfg.h"
 
 // void growCluster_density(int i, int* clusterSpin, const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp, double my_beta){
 //
@@ -100,7 +101,8 @@
 //}
 
 void growCluster_BTRS(size_t i, std::vector<size_t> & clusterSpin, const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp, double my_beta){
-
+    using namespace cfg;
+    auto t_grow = tid::tic_scope(__FUNCTION__);
     std::array<O2, NC> NewPsi;
     std::array<O2, NC> OldPsi;
     size_t ix, iy;
@@ -173,6 +175,7 @@ void growCluster_BTRS(size_t i, std::vector<size_t> & clusterSpin, const std::ve
 }
 
 void wolff_BTRS(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp, double my_beta){
+    using namespace cfg;
     auto t_wolff = tid::tic_scope(__FUNCTION__);
     size_t  count=0;
     std::vector<size_t> clusterSpin(N,0); //vector of int of size N filled with 0
@@ -194,7 +197,8 @@ void wolff_BTRS(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
 void growCluster_nemK(size_t i, size_t alpha_up, std::vector<size_t> & clusterSpin, const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp, double my_beta){
 
     //here I want to go from a phase difference equal to 0 to a phase difference equal to \pi.
-
+    using namespace cfg;
+    auto t_grow = tid::tic_scope(__FUNCTION__);
     std::array<O2, NC> NewPsi{};
     std::array<O2, NC> OldPsi{};
 
@@ -261,7 +265,8 @@ void growCluster_nemK(size_t i, size_t alpha_up, std::vector<size_t> & clusterSp
 
 
 void wolff_nemK(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp, double my_beta){
-
+    using namespace cfg;
+    auto t_wolff = tid::tic_scope(__FUNCTION__);
     size_t count=0;
     std::vector<size_t> clusterSpin(N,0); //vector of int of size N filled with 0
 

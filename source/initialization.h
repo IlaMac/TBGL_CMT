@@ -55,7 +55,7 @@ struct MC_parameters{
 //    bool measure_corr; //if that is true than measure the correlation functions.
 };
 
-void initialize_lattice(const std::vector<Node> &Site, const fs::path & directory_read, int RESTART, struct H_parameters &Hp);
-void initialize_Hparameters(struct H_parameters &Hp, const fs::path & directory_parameters);
-void initialize_MCparameters(struct MC_parameters &MCp, const fs::path & directory_parameters);
+void initialize_lattice(const std::vector<Node> &Site, const fs::path & directory_read, struct H_parameters &Hp);
+void initialize_Hparameters(struct H_parameters &Hp);
+void initialize_MCparameters(struct MC_parameters &MCp);
 

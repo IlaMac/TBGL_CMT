@@ -2,8 +2,10 @@
 #include "main.h"
 #include "rnd.h"
 #include "tid/tid.h"
+#include "cfg/cfg.h"
 
 void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp,  double my_beta){
+    using namespace cfg;
     auto t_metropolis = tid::tic_scope(__FUNCTION__);
     double l, d_theta, d_A, rand;
     double acc_rate=0.5, acc_A=0., acc_theta=0.;
@@ -143,7 +145,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
 
 
 double local_HPsi(std::array<O2, NC> &Psi, int ix, int iy, H_parameters &Hp, const std::vector<Node> &Site) {
-
+    using namespace cfg;
     double h_Kinetic=0., h_Josephson=0., h_lambda=0., h_tot;
     double inv_h2=1./(Hp.h*Hp.h);
     double gauge_phase1, gauge_phase2;
@@ -191,7 +193,8 @@ double local_HPsi(std::array<O2, NC> &Psi, int ix, int iy, H_parameters &Hp, con
 }
 
 double local_HA(double A, int ix, int iy,  int vec,  struct H_parameters &Hp, const std::vector<Node> &Site){
-
+    using namespace cfg;
+    auto t_local = tid::tic_scope(__FUNCTION__);
     double h_Kinetic=0., h_B, h_tot;
     double inv_h2=1./(Hp.h*Hp.h);
     double F2_A=0., F_A;
