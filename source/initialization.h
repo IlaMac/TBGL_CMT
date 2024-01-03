@@ -4,17 +4,16 @@
 
 #pragma once
 
-
 #include "constants.h"
+#include "o2.h"
+#include "rnd.h"
 #include "robust_filesystem.h"
-#include "rng.h"
+#include <array>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
-#include "o2.h"
-#include <array>
 
 struct Node{
     /*Fluctuating vector potential, with DIM spatial dimensions*/
@@ -56,7 +55,7 @@ struct MC_parameters{
 //    bool measure_corr; //if that is true than measure the correlation functions.
 };
 
-void initialize_lattice(const std::vector<Node> &Site, const fs::path & directory_read, int RESTART, struct H_parameters &Hp);
-void initialize_Hparameters(struct H_parameters &Hp, const fs::path & directory_parameters);
-void initialize_MCparameters(struct MC_parameters &MCp, const fs::path & directory_parameters);
+void initialize_lattice(const std::vector<Node> &Site, const fs::path & directory_read, struct H_parameters &Hp);
+void initialize_Hparameters(struct H_parameters &Hp);
+void initialize_MCparameters(struct MC_parameters &MCp);
 

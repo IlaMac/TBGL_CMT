@@ -1,10 +1,12 @@
 #include "montecarlo.h"
 #include "main.h"
-#include "rng.h"
-#include "class_tic_toc.h"
+#include "rnd.h"
+#include "tid/tid.h"
+#include "cfg/cfg.h"
 
 void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp,  double my_beta){
-
+    using namespace cfg;
+    auto t_metropolis = tid::tic_scope(__FUNCTION__);
     double l, d_theta, d_A, rand;
     double acc_rate=0.5, acc_A=0., acc_theta=0.;
     std::array<O2, NC> NewPsi;
@@ -13,11 +15,11 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
     double newE, oldE, minus_deltaE;
     double h2=(Hp.h*Hp.h);
 
-    for (int iy = 0; iy < Ly; iy++) {
-        for (int ix = 0; ix < Lx; ix++) {
-            int i = ix + Lx * (iy);
+    for (size_t iy = 0; iy < Ly; iy++) {
+        for (size_t ix = 0; ix < Lx; ix++) {
+            size_t i = ix + Lx * (iy);
             /*choose randomly a site of the lattice*/
-            //i = rn::uniform_integer_box(0, N-1);
+            //i = rnd::uniform_integer_box(0, N-1);
             //ix=i%Lx;
             //iy=i/Ly;
             if(Hp.london_app == 0) {
@@ -26,7 +28,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
                 OldPsi[1] = Site[i].Psi[1];
                 NewPsi[0] = Site[i].Psi[0];
                 NewPsi[1] = Site[i].Psi[1];
-                l = rn::uniform_real_box(0, 1);
+                l = rnd::uniform_double_box(0, 1);
                 NewPsi[0].r = sqrt(l);
                 NewPsi[1].r = sqrt(1 - l);
                 polar_to_cartesian(NewPsi[0]);
@@ -39,7 +41,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
                     Site[i].Psi[1] = NewPsi[1];
                     //oldE = newE; //I don't have to recompute oldE
                 } else {
-                    rand = rn::uniform_real_box(0, 1);
+                    rand = rnd::uniform_double_box(0, 1);
                     //Boltzmann weight: exp(-\beta \Delta E) E= h³ \sum_i E(i)
                     if (rand < exp(my_beta * minus_deltaE)) {
                         Site[i].Psi[0] = NewPsi[0];
@@ -56,7 +58,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
 //                    OldPsi[1] = Site[i].Psi[1];
 //                    NewPsi[0] = Site[i].Psi[0];
 //                    NewPsi[1] = Site[i].Psi[1];
-//                    l = rn::uniform_real_box(0, 1);
+//                    l = rnd::uniform_double_box(0, 1);
 //                    NewPsi[alpha].r = sqrt(l);
 //                    polar_to_cartesian(NewPsi[alpha]);
 //                    oldE = local_HPsi(OldPsi, ix, iy, Hp, Site);
@@ -66,7 +68,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
 //                        Site[i].Psi[alpha] = NewPsi[alpha];
 //                        //oldE = newE; //I don't have to recompute oldE
 //                    } else {
-//                        rand = rn::uniform_real_box(0, 1);
+//                        rand = rnd::uniform_double_box(0, 1);
 //                        //Boltzmann weight: exp(-\beta \Delta E) E= h³ \sum_i E(i)
 //                        if (rand < exp(my_beta * minus_deltaE)) {
 //                            Site[i].Psi[alpha] = NewPsi[alpha];
@@ -77,12 +79,12 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
 //            }
             /*************PSI UPDATE: phase update **********/
 
-            for (int alpha = 0; alpha < NC; alpha++) {
+            for (size_t alpha = 0; alpha < NC; alpha++) {
                 OldPsi[0] = Site[i].Psi[0];
                 OldPsi[1] = Site[i].Psi[1];
                 NewPsi[0] = Site[i].Psi[0];
                 NewPsi[1] = Site[i].Psi[1];
-                d_theta = rn::uniform_real_box(-MCp.lbox_theta, MCp.lbox_theta);
+                d_theta = rnd::uniform_double_box(-MCp.lbox_theta, MCp.lbox_theta);
                 NewPsi[alpha].t = fmod(OldPsi[alpha].t + d_theta, C_TWO_PI);
                 NewPsi[alpha].r = OldPsi[alpha].r;
                 polar_to_cartesian(NewPsi[alpha]);
@@ -93,7 +95,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
                     Site[i].Psi[alpha] = NewPsi[alpha];
                     acc_theta++;
                 } else {
-                    rand = rn::uniform_real_box(0, 1);
+                    rand = rnd::uniform_double_box(0, 1);
                     //Boltzmann weight: exp(-\beta \Delta E) E= h³ \sum_i E(i)
                     if (rand < exp(my_beta * minus_deltaE)) {
                         Site[i].Psi[alpha] = NewPsi[alpha];
@@ -106,14 +108,14 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
 
     if (Hp.e != 0) {
     /**********VECTOR POTENTIAL UPDATE********/
-        for (int iy = 0; iy < Ly; iy++) {
-            for (int ix = 0; ix < Lx; ix++) {
-                int i = ix + Lx * (iy );
-                for (int vec = 0; vec < DIM; vec++) {
+        for (size_t iy = 0; iy < Ly; iy++) {
+            for (size_t ix = 0; ix < Lx; ix++) {
+                size_t i = ix + Lx * (iy );
+                for (size_t vec = 0; vec < DIM; vec++) {
                     //Update of A
                     OldA = Site[i].A[vec];
                     oldE = local_HA(OldA, ix, iy, vec, Hp, Site);
-                    d_A = rn::uniform_real_box(-MCp.lbox_A, MCp.lbox_A);
+                    d_A = rnd::uniform_double_box(-MCp.lbox_A, MCp.lbox_A);
                     NewA = OldA + d_A;
                     newE = local_HA(NewA, ix, iy, vec, Hp, Site);
                     minus_deltaE = h2 * (oldE - newE);
@@ -121,7 +123,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
                         Site[i].A[vec] = NewA;
                         acc_A++;
                     } else {
-                        rand = rn::uniform_real_box(0, 1);
+                        rand = rnd::uniform_double_box(0, 1);
                         //Boltzmann weight: exp(-\beta E) E= h³ \sum_i E(i)
                         if (rand < exp(my_beta * minus_deltaE)) {
                             Site[i].A[vec] = NewA;
@@ -133,8 +135,8 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
         }
     }
 
-    acc_theta=(double) acc_theta/(NC*N);
-    acc_A=(double) acc_A/(DIM*N);
+    acc_theta= acc_theta/static_cast<double>(NC*N);
+    acc_A= acc_A/static_cast<double>(DIM*N);
     MCp.lbox_theta= MCp.lbox_theta*((0.5*acc_theta/acc_rate)+0.5);
     MCp.lbox_A= MCp.lbox_A*((0.5*acc_A/acc_rate)+0.5);
 
@@ -142,28 +144,29 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
 
 
 
-double local_HPsi(std::array<O2, NC> &Psi, int ix, int iy, H_parameters &Hp, const std::vector<Node> &Site) {
-
+double local_HPsi(std::array<O2, NC> &Psi, size_t ix, size_t iy, H_parameters &Hp, const std::vector<Node> &Site) {
+    using namespace cfg;
     double h_Kinetic=0., h_Josephson=0., h_lambda=0., h_tot;
     double inv_h2=1./(Hp.h*Hp.h);
     double gauge_phase1, gauge_phase2;
     double gamma=0;
-    int nn_ip, nn_im;
-    int i=ix +Lx*(iy);
+    size_t nn_ip, nn_im;
+    size_t i=ix +Lx*(iy);
 
-    int ip=(ix == Lx-1 ? 0: ix+1);
-    int ipx= ip+Lx*(iy);
-    int jp=(iy == Ly-1 ? 0: iy+1);
-    int ipy= ix+(Lx*jp);
-    int imx= (ix == 0 ? Lx-1: ix-1)+Lx*(iy);
-    int imy= ix+Lx*((iy == 0 ? Ly-1: iy-1));
+    size_t ip=(ix == Lx-1 ? 0: ix+1);
+    size_t ipx= ip+Lx*(iy);
+    size_t jp=(iy == Ly-1 ? 0: iy+1);
+    size_t ipy= ix+(Lx*jp);
+    size_t imx= (ix == 0 ? Lx-1: ix-1)+Lx*(iy);
+    size_t imy= ix+Lx*((iy == 0 ? Ly-1: iy-1));
+
 
     //Compute the local Energy respect to a given component (alpha) of the matter field Psi and a given spatial position (r=(ix, iy, iz))
     //We need to compute just the part of the Hamiltonian involving Psi
 
-    for(int alpha=0; alpha<NC; alpha ++) {
+    for(size_t alpha=0; alpha<NC; alpha ++) {
         //Kinetic= -(1/h²)*\sum_k=1,2 (|Psi_{alpha}(r)||Psi_{alpha}(r+k)|* cos(theta_{alpha}(r+k) - theta_{alpha}(r) +h*e*A_k(r))) + (|Psi_{alpha}(r-k)||Psi_{alpha}(r)|* cos(theta_{alpha}(r) - theta_{alpha}(r-k) +h*e*A_k(r-k)))
-        for (int vec = 0; vec < DIM; vec++) {
+        for (size_t vec = 0; vec < DIM; vec++) {
             if (vec == 0) {
                 nn_ip = ipx;
                 nn_im = imx;
@@ -190,31 +193,32 @@ double local_HPsi(std::array<O2, NC> &Psi, int ix, int iy, H_parameters &Hp, con
     return h_tot;
 }
 
-double local_HA(double A, int ix, int iy,  int vec,  struct H_parameters &Hp, const std::vector<Node> &Site){
-
+double local_HA(double A, size_t ix, size_t iy,  size_t vec,  struct H_parameters &Hp, const std::vector<Node> &Site){
+    using namespace cfg;
+    auto t_local = tid::tic_scope(__FUNCTION__);
     double h_Kinetic=0., h_B, h_tot;
     double inv_h2=1./(Hp.h*Hp.h);
     double F2_A=0., F_A;
     double gauge_phase1;
-    int alpha, i, l;
+    size_t alpha, i, l;
 
-    int nn_ip, nn_ipl, nn_iml;
-    i=ix +static_cast<int>(Lx)*(iy);
+    size_t nn_ip, nn_ipl, nn_iml;
+    i=ix +Lx*(iy);
 
-    int ip=(ix == static_cast<int>(Lx-1) ? 0: ix+1);
-    int ipx= ip+static_cast<int>(Lx)*(iy);
-    int jp=(iy == static_cast<int>(Ly-1) ? 0: iy+1);
-    int ipy= ix+(static_cast<int>(Lx)*jp);
+    size_t ip=(ix == Lx-1 ? 0: ix+1);
+    size_t ipx= ip+ Lx*(iy);
+    size_t jp=(iy == Ly-1 ? 0: iy+1);
+    size_t ipy= ix+(Lx*jp);
 
 
-    int imx= (ix == 0 ? static_cast<int>(Lx-1): ix-1)+static_cast<int>(Lx)*(iy);
-    int imy= ix+static_cast<int>(Lx)*((iy == 0 ? static_cast<int>(Ly-1): iy-1));
+    size_t imx= (ix == 0 ? Lx-1: ix-1)+Lx*iy;
+    size_t imy= ix+Lx*(iy == 0 ? Ly-1: iy-1);
 
     if(vec==0){
         nn_ip=ipx;
     }else if(vec==1){
         nn_ip=ipy;
-    }
+    } else throw std::logic_error("unexpected value for vec");
 
     //Compute the local Energy respect to a given component (alpha) of the vector potential A and a given spatial position (r=(ix, iy, iz))
     //We need to compute just the part of the Hamiltonian involving A

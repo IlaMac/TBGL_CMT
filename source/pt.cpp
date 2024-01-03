@@ -40,14 +40,14 @@ void parallel_temp(double &my_E , double &my_beta, int &my_ind, struct PT_parame
     MPI_Gather(&my_E, 1, MPI_DOUBLE, PTroot.All_Energies.data(), 1, MPI_DOUBLE, PTp.root, MPI_COMM_WORLD);
     if (PTp.rank == PTp.root) { //Root forms the pairs and decides (given the energies and the betas) which pairs will swap
         //Pair Formation
-        coin = rn::uniform_real_box(0,1);
+        coin = rnd::uniform_double_box(0,1);
         if(coin < 0.5) { //each even rank wil be paired with its right neighbour
             nn= +1;
         }else if(coin >= 0.5){ //each even rank wil be paired with its left neighbour
             nn=-1;
         }
         while (i < PTp.np) {
-            n_rand=rn::uniform_real_box(0,1);
+            n_rand=rnd::uniform_double_box(0,1);
             ind_nn=(PTp.np + i + nn) % PTp.np;
             oldrank_i=PTroot.ind_to_rank[i];
             oldrank_nn=PTroot.ind_to_rank[ind_nn];

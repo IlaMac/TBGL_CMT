@@ -3,12 +3,15 @@
 //
 
 #include "measures.h"
+#include "cfg/cfg.h"
 #include "main.h"
-#include "rng.h"
-#include "class_tic_toc.h"
+#include "rnd.h"
+#include "tid/tid.h"
+#include <fmt/format.h>
 
 void energy(struct Measures &mis, struct H_parameters &Hp, const std::vector<Node> &Site){
-
+    using namespace cfg;
+    auto t_energy = tid::tic_scope(__FUNCTION__);
     double h_Kinetic=0., h_Josephson=0., h_B=0., h_lambda=0.;
     double F_A=0;
     double gauge_phase;
@@ -65,7 +68,8 @@ void energy(struct Measures &mis, struct H_parameters &Hp, const std::vector<Nod
 
 
 void helicity_modulus(struct Measures &mis, struct H_parameters &Hp, const std::vector<Node> &Site){
-
+    using namespace cfg;
+    auto t_helicity = tid::tic_scope(__FUNCTION__);
     double J_alpha=0., DJ_alpha_Dd=0.;
     size_t vec=0; //helicity modulus computed along the x direction
     double gauge_phase1;
@@ -90,9 +94,10 @@ void helicity_modulus(struct Measures &mis, struct H_parameters &Hp, const std::
 
 
 void dual_stiffness(struct Measures &mis, struct H_parameters &Hp, const std::vector<Node> &Site){
-
-    long double qx_min=C_TWO_PI/(Lx);
-    long double invNorm= 1./((C_TWO_PI)*(C_TWO_PI)*N);
+    using namespace cfg;
+    auto t_dual = tid::tic_scope(__FUNCTION__);
+    double qx_min=C_TWO_PI/static_cast<double>(Lx);
+    double invNorm= 1./((C_TWO_PI)*(C_TWO_PI)*static_cast<double>(N));
     double Re_rhoz=0.;
     double Im_rhoz=0.;
     double Dx_Ay, Dy_Ax;
@@ -104,8 +109,8 @@ void dual_stiffness(struct Measures &mis, struct H_parameters &Hp, const std::ve
             Dx_Ay=(Site[nn(i, 0, 1)].A[1]- Site[i].A[1])*inv_h;
             Dy_Ax=(Site[nn(i, 1, 1)].A[0]- Site[i].A[0])*inv_h;
 
-            Re_rhoz+=(cos((double)(qx_min*ix))*(Dx_Ay -Dy_Ax));
-            Im_rhoz+=(sin((double)(qx_min*ix))*(Dx_Ay -Dy_Ax));
+            Re_rhoz+=(cos((qx_min*static_cast<double>(ix)))*(Dx_Ay -Dy_Ax));
+            Im_rhoz+=(sin((qx_min*static_cast<double>(ix)))*(Dx_Ay -Dy_Ax));
         }
     }
     mis.d_rhoz=(double) invNorm*((Re_rhoz*Re_rhoz) +(Im_rhoz*Im_rhoz));
@@ -113,8 +118,10 @@ void dual_stiffness(struct Measures &mis, struct H_parameters &Hp, const std::ve
 
 void Z2_magnetization(struct Measures &mis, const std::vector<Node> &Site){
     //The Ising parameter m(x,y)=+/-1 indicates the chirality between the two phases.
+    using namespace cfg;
+    auto t_Z2 = tid::tic_scope(__FUNCTION__);
 
-    long double phi_shifted=0.;
+    double phi_shifted=0.;
     for (size_t iy = 0; iy < Ly; iy++) {
         for (size_t ix = 0; ix < Lx; ix++) {
             size_t i=ix +Lx*(iy);
@@ -137,24 +144,28 @@ void Z2_magnetization(struct Measures &mis, const std::vector<Node> &Site){
 }
 
 void magnetization_singlephase(struct Measures &mis, const std::vector<Node> &Site){
-    double cos_phi[NC]={0}, sin_phi[NC]={0};
+    using namespace cfg;
+    auto t_magnetization = tid::tic_scope(__FUNCTION__);
+    [[maybe_unused]] double cos_phi[NC]={0}; //TODO: REMOVE UNUSED
+    [[maybe_unused]] double sin_phi[NC]={0}; //TODO: REMOVE UNUSED
     auto inv_N= 1. / static_cast<double>(N);
 
     for(auto & s : Site) {
         for (size_t alpha = 0; alpha < NC; alpha++) {
             mis.mx_phase[alpha] += cos(s.Psi[alpha].t);
-            mis.my_phase[alpha] += sin(s.Psi[alpha].t );
+            mis.my_phase[alpha] += sin(s.Psi[alpha].t);
         }
     }
 
-    for(int alpha=0; alpha<NC; alpha++) {
+    for(size_t alpha=0; alpha<NC; alpha++) {
         mis.mx_phase[alpha]*=inv_N;
         mis.my_phase[alpha]*=inv_N;
     }
 }
 
 void nematic_order(struct Measures &mis, const std::vector<Node> &Site){
-
+    using namespace cfg;
+    auto t_nematic = tid::tic_scope(__FUNCTION__);
     long double gamma_temp;
     long double theta_temp;
     for (size_t iy = 0; iy < Ly; iy++) {
@@ -204,12 +215,11 @@ void nematic_order(struct Measures &mis, const std::vector<Node> &Site){
 
 
 
-void save_lattice(const std::vector<Node> &Site, const fs::path & directory_write, const std::string configuration){
+void save_lattice(const std::vector<Node> &Site, const fs::path & directory_write, const std::string & configuration){
+    auto t_save = tid::tic_scope(__FUNCTION__);
 
-    std::string sPsi;
-    std::string sA;
-    sPsi= std::string("Psi_")+ configuration + std::string(".bin");
-    sA= std::string("A_")+ configuration + std::string(".bin");
+    auto sPsi = fmt::format("Psi_{}.bin", configuration);
+    auto sA = fmt::format("A_{}.bin",configuration);
     fs::path psi_init_file = directory_write / sPsi;
     fs::path a_init_file = directory_write / sA;
 
@@ -232,10 +242,9 @@ void save_lattice(const std::vector<Node> &Site, const fs::path & directory_writ
 
 }
 
-void save_lattice_chargezero(const std::vector<Node> &Site, const fs::path & directory_write, const std::string configuration){
-
-    std::string sPsi;
-    sPsi= std::string("Psi_")+ configuration + std::string(".bin");
+void save_lattice_chargezero(const std::vector<Node> &Site, const fs::path & directory_write, const std::string &configuration){
+    auto t_save = tid::tic_scope(__FUNCTION__);
+    auto sPsi= fmt::format("Psi_{}.bin", configuration);
     fs::path psi_init_file = directory_write / sPsi;
 
     FILE *fPsi= nullptr;

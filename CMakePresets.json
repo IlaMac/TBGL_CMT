@@ -149,6 +149,36 @@
         "conan",
         "default"
       ]
+    },
+    {
+      "name": "debug-conan-gcc-13",
+      "displayName": "Debug|conan package manager|gcc-13",
+      "inherits": [
+        "gcc-13",
+        "debug",
+        "conan",
+        "default"
+      ]
+    },
+    {
+      "name": "debug-conan-clang",
+      "displayName": "Debug|conan package manager|clang",
+      "inherits": [
+        "debug",
+        "conan",
+        "clang",
+        "default"
+      ]
+    },
+    {
+      "name": "debug-conan-apple-clang",
+      "displayName": "Debug|conan package manager|apple-clang",
+      "inherits": [
+        "debug",
+        "conan",
+        "apple-clang",
+        "default"
+      ]
     }
   ],
   "buildPresets": [
@@ -171,6 +201,18 @@
     {
       "name": "debug-conan",
       "configurePreset": "debug-conan"
+    },
+        {
+      "name": "debug-conan-gcc-13",
+      "configurePreset": "debug-conan-gcc-13"
+    },
+    {
+      "name": "debug-conan-clang",
+      "configurePreset": "debug-conan-clang"
+    },
+    {
+      "name": "debug-conan-apple-clang",
+      "configurePreset": "debug-conan-apple-clang"
     }
   ],
   "testPresets": [
