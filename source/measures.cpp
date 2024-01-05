@@ -456,7 +456,7 @@ void vorticity(struct Measures &mis, const std::vector<Node> &Site){
     else{
         mis.composite_vortex1_size=-1; //in the data analysis, I will consider only positive entries. In this way, I avoid to overcount the size "0".
     }
-//    std::cout<< " size c_v1: "<<  mis.composite_vortex1_size << " size c_v2: "<<  mis.composite_vortex2_size << std::endl;
+//    std::cout<<" size c_v1: "<<  mis.composite_vortex1_size << " size c_v2: "<<  mis.composite_vortex2_size << std::endl;
 //    std::cout<< " nv1: "<<  nv1 << " nv2: "<<  nv2 << " nav1: "<<  nav1 << " nav2: "<<  nav2 << std::endl;
 
 }

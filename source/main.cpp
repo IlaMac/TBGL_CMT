@@ -276,7 +276,7 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
             Z2_magnetization(mis, Site);
             helicity_modulus(mis, Hp, Site);
             magnetization_singlephase(mis,  Site);
-            vorticity(mis, Site);
+            vorticity( mis, Site);
 
             if(Hp.e !=0) {
                 dual_stiffness(mis, Hp, Site);

@@ -33,11 +33,11 @@ void initialize_Hparameters(struct H_parameters &Hp){
     }else{
 
         Hp.K=-1;
-        Hp.lambda=1;
+        Hp.lambda=0.1;
         Hp.e=0;
         Hp.h= 1;
-        Hp.b_low=1.5;
-        Hp.b_high=3.0;
+        Hp.b_low=2.5;
+        Hp.b_high=2.8;
         /* A_fixed = (2\pi fx y_i, 2 \pi fy x_i)*/
         Hp.fx=0.;
         Hp.fy=0.;
