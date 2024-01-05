@@ -8,6 +8,8 @@
 #include "rnd.h"
 #include "tid/tid.h"
 #include <fmt/format.h>
+#include <list>
+
 
 void energy(struct Measures &mis, struct H_parameters &Hp, const std::vector<Node> &Site){
     using namespace cfg;
@@ -210,6 +212,252 @@ void nematic_order(struct Measures &mis, const std::vector<Node> &Site){
     mis.gamma/= static_cast<double>(N);
     mis.theta12/= static_cast<double>(N);
     //std::cout<< " diff: "<<mis.density_diff << " gamma: "<<mis.gamma <<std::endl;
+
+}
+
+void vorticity(struct Measures &mis, const std::vector<Node> &Site){
+    using namespace cfg;
+
+    auto t_vorticity = tid::tic_scope(__FUNCTION__);
+    std::vector<std::pair<double, double>> coord_v1;
+    std::vector<std::pair<double, double>> coord_av1;
+
+    std::vector<std::pair<double, double>> coord_v2;
+    std::vector<std::pair<double, double>> coord_av2;
+
+    coord_v1.resize(N);
+    coord_v2.resize(N);
+    coord_av1.resize(N);
+    coord_av2.resize(N);
+
+    size_t nv1=0, nv2=0, nav1=0, nav2=0;
+
+    for (size_t iy = 0; iy < Ly; iy++) {
+        for (size_t ix = 0; ix < Lx; ix++) {
+            double n=0;
+            //Circuitation of the phase component 0 around the i-th plaquette
+            size_t ipx= (ix == Lx-1 ? 0: ix+1);
+            double phi_1= Site[ix + Lx*(iy)].Psi[0].t - Site[ipx + Lx*(iy)].Psi[0].t;
+            while(phi_1< -C_PI){
+                phi_1+= C_TWO_PI;
+            }
+            while(phi_1>= C_PI){
+                phi_1-= C_TWO_PI;
+            }
+            size_t ipy= (iy == Ly-1 ? 0: iy+1);
+            double phi_2= Site[ipx + Lx*(iy)].Psi[0].t - Site[ipx + Lx*(ipy)].Psi[0].t;
+            while(phi_2< -C_PI){
+                phi_2+= C_TWO_PI;
+            }
+            while(phi_2>= C_PI){
+                phi_2-= C_TWO_PI;
+            }
+            double phi_3= Site[ipx + Lx*(ipy)].Psi[0].t - Site[ix + Lx*(ipy)].Psi[0].t;
+            while(phi_3< -C_PI){
+                phi_3+= C_TWO_PI;
+            }
+            while(phi_3>= C_PI){
+                phi_3-= C_TWO_PI;
+            }
+            double phi_4= Site[ix + Lx*(ipy)].Psi[0].t - Site[ix + Lx*(iy)].Psi[0].t;
+            while(phi_4< -C_PI){
+                phi_4+= C_TWO_PI;
+            }
+            while(phi_4>= C_PI){
+                phi_4-= C_TWO_PI;
+            }
+            n=(phi_1 + phi_2+ phi_3 + phi_4)/C_TWO_PI;
+            if(n>0.01){
+               mis.vortex_density[0]+=1;
+               coord_v1[nv1]= std::pair(ix, iy);
+               nv1++;
+            }
+            else if(n<-0.01){
+                mis.antivortex_density[0]+=1;
+                coord_av1[nav1]=(std::pair(ix, iy));
+                nav1++;
+            }
+
+            //Circuitation of the phase component 1 around the i-th plaquette
+            phi_1= Site[ix + Lx*(iy)].Psi[1].t - Site[ipx + Lx*(iy)].Psi[1].t;
+            while(phi_1< -C_PI){
+                phi_1+= C_TWO_PI;
+            }
+            while(phi_1>= C_PI){
+                phi_1-= C_TWO_PI;
+            }
+            phi_2= Site[ipx + Lx*(iy)].Psi[1].t - Site[ipx + Lx*(ipy)].Psi[1].t;
+            while(phi_2< -C_PI){
+                phi_2+= C_TWO_PI;
+            }
+            while(phi_2>= C_PI){
+                phi_2-= C_TWO_PI;
+            }
+            phi_3= Site[ipx + Lx*(ipy)].Psi[1].t - Site[ix + Lx*(ipy)].Psi[1].t;
+            while(phi_3< -C_PI){
+                phi_3+= C_TWO_PI;
+            }
+            while(phi_3>= C_PI){
+                phi_3-= C_TWO_PI;
+            }
+            phi_4= Site[ix + Lx*(ipy)].Psi[1].t - Site[ix + Lx*(iy)].Psi[1].t;
+            while(phi_4< -C_PI){
+                phi_4+= C_TWO_PI;
+            }
+            while(phi_4>= C_PI){
+                phi_4-= C_TWO_PI;
+            }
+            n=(phi_1 + phi_2+ phi_3 + phi_4)/C_TWO_PI;
+            if(n>0.01){
+                mis.vortex_density[1]+=1.;
+                coord_v2[nv2]=(std::pair(ix, iy));
+                nv2++;
+            }
+            else if(n<-0.01){
+                mis.antivortex_density[1]+=1.;
+                coord_av2[nav2]=(std::pair(ix, iy));
+                nav2++;
+            }
+
+        }
+    }
+
+    coord_v1.resize(nv1);
+    coord_v2.resize(nv2);
+    coord_av1.resize(nav1);
+    coord_av2.resize(nav2);
+
+    for(size_t alpha=0; alpha<NC; alpha++){
+        mis.vortex_density[alpha]/=(double) N;
+        mis.antivortex_density[alpha]/= (double) N;
+//        std::cout << "alpha: " << alpha << "vdensity: " << mis.vortex_density[alpha]<<std::endl ;
+    }
+
+    //Minimum size of composite vortices formed by a vortex (antivortex) in the component 0 and a vortex (antivortex) in the component 1
+    if(nv1!=0 && nv2!=0) {
+        for(size_t v1p=0; v1p<nv1; v1p++){
+            double temp_dist2 ,dist2=10000;
+            for(size_t v2p=0; v2p<nv2; v2p++) {
+                double dx= abs(coord_v1[v1p].first - coord_v2[v2p].first);
+                if (dx>(double)Lx/2){
+                    dx=(double)Lx-dx;
+                }
+                double dy=abs(coord_v1[v1p].second - coord_v2[v2p].second);
+                if (dy>(double)Ly/2){
+                    dy=(double)Ly-dy;
+                }
+                temp_dist2= dx*dx +dy*dy;
+                if (temp_dist2< dist2){
+                    dist2= temp_dist2;
+                }
+//                if(dist2==0) {
+//                    std::cout << "dx, dy" << dx << "," << dy << " min_dist2: " << dist2 << " coordinates v1: "
+//                              << coord_v1[v1p].first << ", " << coord_v1[v1p].second << " coordinates av2: "
+//                              << coord_v2[v2p].first << ", " << coord_v2[v2p].second << std::endl;
+//                }
+            }
+//            std::cout<< "distance nv1-nv2: " << sqrt(dist2) << std::endl;
+            mis.composite_vortex2_size+= sqrt(dist2);
+        }
+        mis.composite_vortex2_size/=(double)nv1;
+    }
+    else{
+        mis.composite_vortex2_size=-1; //in the data analysis, I will consider only positive entries. In this way, I avoid to overcount the size "0".
+    }
+
+    if(nav1!=0 && nav2!=0) {
+        for(size_t v1m=0; v1m<nav1; v1m++){
+            double temp_dist2 ,dist2=10000;
+            for(size_t v2m=0; v2m<nav2; v2m++) {
+                double dx= abs(coord_av1[v1m].first - coord_av2[v2m].first);
+                if (dx>(double)Lx/2){
+                    dx=(double)Lx-dx;
+                }
+                double dy=abs(coord_av1[v1m].second - coord_av2[v2m].second);
+                if (dy>(double)Ly/2){
+                    dy=(double)Ly-dy;
+                }
+                temp_dist2= dx*dx +dy*dy;
+                if (temp_dist2< dist2){
+                    dist2= temp_dist2;
+                }
+//                if(dist2==0){
+//                    std::cout<<"dx, dy"<< dx<< ","<< dy<<" min_dist2: "<< dist2 <<" coordinates av1: "<< coord_av1[v1m].first
+//                    << ", "<< coord_av1[v1m].second<< " coordinates av2: "<< coord_av2[v2m].first << ", "<< coord_av2[v2m].second<< std::endl;
+//                }
+            }
+//            std::cout<<"distance nav1-nav2: " << sqrt(dist2) << std::endl;
+            mis.composite_vortex2_size+=sqrt(dist2);
+        }
+        mis.composite_vortex2_size/=(double)nav1;
+    }
+    else{
+        mis.composite_vortex2_size=-1; //in the data analysis, I will consider only positive entries. In this way, I avoid to overcount the size "0".
+    }
+
+
+    //Minimum size of composite vortices formed by a vortex (antivortex) in the component 0 and an antivortex (vortex) in the component 1
+    if(nv1!=0 && nav2!=0) {
+        for(size_t v1p=0; v1p<nv1; v1p++){
+            double temp_dist2, dist2=10000;
+            for(size_t v2m=0; v2m<nav2; v2m++) {
+                double dx= abs(coord_v1[v1p].first - coord_av2[v2m].first);
+                if (dx>(double)Lx/2){
+                    dx=(double)Lx-dx;
+                }
+                double dy= abs(coord_v1[v1p].second - coord_av2[v2m].second);
+                if (dy>(double)Ly/2){
+                    dy=(double)Ly-dy;
+                }
+                temp_dist2= dx*dx +dy*dy;
+                if (temp_dist2< dist2){
+                    dist2= temp_dist2;
+                }
+//                if(dist2==0){
+//                    std::cout<<"dx, dy"<< dx<< ","<< dy<<" min_dist2: "<< dist2 << " coordinates v1: "<< coord_v1[v1p].first << ", "<< coord_v1[v1p].second<< " coordinates av2: "<< coord_av2[v2m].first << ", "<< coord_av2[v2m].second<< std::endl;
+//                }
+            }
+//            std::cout<< "distance nv1-nav2: " << sqrt(dist2) << std::endl;
+            mis.composite_vortex1_size+=sqrt(dist2);
+        }
+        mis.composite_vortex1_size/=(double) nv1;
+    }
+    else{
+        mis.composite_vortex1_size=-1; //in the data analysis, I will consider only positive entries. In this way, I avoid to overcount the size "0".
+    }
+
+    if(nav1!=0 && nv2!=0) {
+        for(size_t v1m=0; v1m<nav1; v1m++){
+            double temp_dist2, dist2=10000;
+            for(size_t v2p=0; v2p<nv2; v2p++) {
+                double dx = abs(coord_av1[v1m].first - coord_v2[v2p].first);
+                if (dx > (double) Lx / 2) {
+                    dx = (double) Lx - dx;
+                }
+                double dy = abs(coord_av1[v1m].second - coord_v2[v2p].second);
+                if (dy > (double) Ly / 2) {
+                    dy = (double) Ly - dy;
+                }
+                temp_dist2 = dx * dx + dy * dy;
+                if (temp_dist2 < dist2) {
+                    dist2 = temp_dist2;
+                }
+//                if (dist2 == 0) {
+//                    std::cout << "dx, dy" << dx << "," << dy << "  min_dist2: " << dist2 << "coordinates av1: "
+//                              << coord_av1[v1m].first << ", " << coord_av1[v1m].second << " coordinates v2: "
+//                              << coord_v2[v2p].first << ", " << coord_v2[v2p].second << std::endl;
+//                }
+            }
+//            std::cout<< "distance nav1-nv2: " << sqrt(dist2) << std::endl;
+            mis.composite_vortex1_size+=sqrt(dist2);
+        }
+        mis.composite_vortex1_size/=(double)nav1;
+    }
+    else{
+        mis.composite_vortex1_size=-1; //in the data analysis, I will consider only positive entries. In this way, I avoid to overcount the size "0".
+    }
+//    std::cout<< " size c_v1: "<<  mis.composite_vortex1_size << " size c_v2: "<<  mis.composite_vortex2_size << std::endl;
+//    std::cout<< " nv1: "<<  nv1 << " nv2: "<<  nv2 << " nav1: "<<  nav1 << " nav2: "<<  nav2 << std::endl;
 
 }
 

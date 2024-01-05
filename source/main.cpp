@@ -79,7 +79,6 @@ int main(int argc, char *argv[]){
     cli::parse(argc, argv);
 
 
-
 //    if(argc > 6 ){
 //        printf("Too many arguments!");
 //        myhelp(argc, argv);
@@ -121,9 +120,7 @@ int main(int argc, char *argv[]){
     signal(SIGQUIT, signal_callback_handler);
 
     // std::at_quick_exit is called by "std::quick_exit(int)".
-    // Note that std::quick_exit does not by itself catch termination codes
-    // but we have to do it ourselves with signal(), which is found in
-    // #include<csignal>
+    // Note that std::quick_exit does not by itself catch termination codes. We have to do it ourselves with signal(), which is found in #include<csignal>
     #if !defined(__APPLE__) //this function is not present on apple clang
     std::at_quick_exit(clean_up);
     // std::atexit is called when program terminates
@@ -204,7 +201,7 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
     std::cout << directory_write_temp << "\t" << NSTART << std::endl;
     // Enable compression
     file.setCompressionLevel(0);
-//    // Register the compound type
+    // Register the compound type
     std::array<hsize_t, 1> rho_dims = {NC};
     h5pp::hid::h5t HDF5_RHO_TYPE = H5Tarray_create(H5T_NATIVE_DOUBLE, rho_dims.size(), rho_dims.data());
 
@@ -232,6 +229,10 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "DH_Ddi", HOFFSET(Measures, DH_Ddi), HDF5_RHO_TYPE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "D2H_Dd2i", HOFFSET(Measures, D2H_Dd2i), HDF5_RHO_TYPE);
     //H5Tinsert(MY_HDF5_MEASURES_TYPE, "D2H_Dd2ij", HOFFSET(Measures, D2H_Dd2ij), HDF5_RHO_TYPE);
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "vortex_density", HOFFSET(Measures, vortex_density), HDF5_RHO_TYPE);
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "antivortex_density", HOFFSET(Measures, antivortex_density), HDF5_RHO_TYPE);
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "composite_vortex1_size", HOFFSET(Measures, composite_vortex1_size), H5T_NATIVE_DOUBLE);
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "composite_vortex2_size", HOFFSET(Measures, composite_vortex2_size), H5T_NATIVE_DOUBLE);
 
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "rank", HOFFSET(Measures, my_rank), H5T_NATIVE_INT);
 
@@ -275,6 +276,7 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
             Z2_magnetization(mis, Site);
             helicity_modulus(mis, Hp, Site);
             magnetization_singlephase(mis,  Site);
+            vorticity(mis, Site);
 
             if(Hp.e !=0) {
                 dual_stiffness(mis, Hp, Site);
@@ -310,6 +312,7 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
         file = h5pp::File(directory_write_temp+"/Output.h5", h5pp::FilePermission::READWRITE);
     }
     save_lattice(Site, directory_write_temp, std::string("final"));
+    MPI_Barrier(MPI_COMM_WORLD);
 }
 
 size_t nn(size_t i, size_t coord, int dir){
