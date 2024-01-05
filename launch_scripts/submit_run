@@ -1,0 +1,12 @@
+#!/bin/bash
+#SBATCH --job-name=L256_lambda0.1_K-2_e0_h1_bmin2.2_bmax3.4_init4_london0          # Name of the job
+#SBATCH --time=7-00:00:00               # Allocation time
+#SBATCH --mem-per-cpu=2000              # Memory per allocated cpu
+#SBATCH --nodes=2               # Number of nodes
+#SBATCH --ntasks=64
+#SBATCH --output=/home/x_ilama/TBGL_CMT/Output_TBGL_CMT/lambda_0.1/K_-2/e_0/h_1/L256_lambda0.1_K-2_e0_h1_bmin2.2_bmax3.4_init4_london0/logs/log_L256_lambda0.1_K-2_e0_h1_bmin2.2_bmax3.4_init4_london0.o
+#SBATCH --error=/home/x_ilama/TBGL_CMT/Output_TBGL_CMT/lambda_0.1/K_-2/e_0/h_1/L256_lambda0.1_K-2_e0_h1_bmin2.2_bmax3.4_init4_london0/logs/log_L256_lambda0.1_K-2_e0_h1_bmin2.2_bmax3.4_init4_london0.e
+
+srun ../build/release-conan/CMT -L 256 --outdir /home/x_ilama/TBGL_CMT/Output_TBGL_CMT/lambda_0.1/K_-2/e_0/h_1/L256_lambda0.1_K-2_e0_h1_bmin2.2_bmax3.4_init4_london0 --tempdir /tmp/Output_x_ilaria/lambda_0.1/K_-2/e_0/h_1/L256_lambda0.1_K-2_e0_h1_bmin2.2_bmax3.4_init4_london0 -r 0 -s -1 &> /home/x_ilama/TBGL_CMT/Output_TBGL_CMT/lambda_0.1/K_-2/e_0/h_1/L256_lambda0.1_K-2_e0_h1_bmin2.2_bmax3.4_init4_london0/logs/log_L256_lambda0.1_K-2_e0_h1_bmin2.2_bmax3.4_init4_london0.o
+
+
