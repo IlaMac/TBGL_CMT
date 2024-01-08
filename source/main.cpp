@@ -236,18 +236,20 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
             mis.reset();
             energy(mis, Hp, Site);
 
+            Z2_magnetization(mis, Site);
+            magnetization_singlephase(mis,  Site);
+            vorticity( mis, Hp, Site);
+
+            if(Hp.e ==0) {
+                helicity_modulus(mis, Hp, Site);
+            }else {
+                dual_stiffness(mis, Hp, Site);
+            }
+
             if(Hp.K<0){
                 nematic_order(mis, Site);
             }
 
-            Z2_magnetization(mis, Site);
-            helicity_modulus(mis, Hp, Site);
-            magnetization_singlephase(mis,  Site);
-            vorticity( mis, Site);
-
-            if(Hp.e !=0) {
-                dual_stiffness(mis, Hp, Site);
-            }
             mis.my_rank=PTp.rank;
         }
 

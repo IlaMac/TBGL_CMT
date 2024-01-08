@@ -213,7 +213,7 @@ void nematic_order(struct Measures &mis, const std::vector<Node> &Site){
 
 }
 
-void vorticity(struct Measures &mis, const std::vector<Node> &Site){
+void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<Node> &Site ){
     using namespace cfg;
 
     auto t_vorticity = tid::tic_scope(__FUNCTION__);
@@ -233,9 +233,13 @@ void vorticity(struct Measures &mis, const std::vector<Node> &Site){
     for (size_t iy = 0; iy < Ly; iy++) {
         for (size_t ix = 0; ix < Lx; ix++) {
             double n=0;
+            //Convention gauge phase
+            //gauge_phase = Site[nn_ip].Psi[alpha].t - Site[i].Psi[alpha].t + Site[i].R_ext[vec] + Hp.h * Hp.e * Site[i].A[vec];
             //Circuitation of the phase component 0 around the i-th plaquette
             size_t ipx= (ix == Lx-1 ? 0: ix+1);
-            double phi_1= Site[ix + Lx*(iy)].Psi[0].t - Site[ipx + Lx*(iy)].Psi[0].t;
+            size_t i= ix + Lx*(iy);
+            size_t nn_ipx=ipx + Lx*(iy);
+            double phi_1=  Site[nn_ipx].Psi[0].t -Site[i].Psi[0].t + Site[i].R_ext[0] + Hp.h * Hp.e * Site[i].A[0];
             while(phi_1< -C_PI){
                 phi_1+= C_TWO_PI;
             }
@@ -243,21 +247,23 @@ void vorticity(struct Measures &mis, const std::vector<Node> &Site){
                 phi_1-= C_TWO_PI;
             }
             size_t ipy= (iy == Ly-1 ? 0: iy+1);
-            double phi_2= Site[ipx + Lx*(iy)].Psi[0].t - Site[ipx + Lx*(ipy)].Psi[0].t;
+            size_t nn_ipx_ipy= ipx + Lx*(ipy);
+            double phi_2= Site[nn_ipx_ipy].Psi[0].t - Site[nn_ipx].Psi[0].t +  Site[nn_ipx].R_ext[1] + Hp.h * Hp.e * Site[nn_ipx].A[1];
             while(phi_2< -C_PI){
                 phi_2+= C_TWO_PI;
             }
             while(phi_2>= C_PI){
                 phi_2-= C_TWO_PI;
             }
-            double phi_3= Site[ipx + Lx*(ipy)].Psi[0].t - Site[ix + Lx*(ipy)].Psi[0].t;
+            size_t nn_ipy= ix + Lx*(ipy);
+            double phi_3= Site[nn_ipy].Psi[0].t - Site[nn_ipx_ipy].Psi[0].t -  Site[nn_ipy].R_ext[0] - Hp.h * Hp.e * Site[nn_ipx].A[0] ;
             while(phi_3< -C_PI){
                 phi_3+= C_TWO_PI;
             }
             while(phi_3>= C_PI){
                 phi_3-= C_TWO_PI;
             }
-            double phi_4= Site[ix + Lx*(ipy)].Psi[0].t - Site[ix + Lx*(iy)].Psi[0].t;
+            double phi_4= Site[i].Psi[0].t - Site[nn_ipy].Psi[0].t -  Site[i].R_ext[1] - Hp.h * Hp.e * Site[i].A[1];
             while(phi_4< -C_PI){
                 phi_4+= C_TWO_PI;
             }
@@ -277,28 +283,28 @@ void vorticity(struct Measures &mis, const std::vector<Node> &Site){
             }
 
             //Circuitation of the phase component 1 around the i-th plaquette
-            phi_1= Site[ix + Lx*(iy)].Psi[1].t - Site[ipx + Lx*(iy)].Psi[1].t;
+            phi_1=  Site[nn_ipx].Psi[1].t -Site[i].Psi[1].t + Site[i].R_ext[0] + Hp.h * Hp.e * Site[i].A[0];
             while(phi_1< -C_PI){
                 phi_1+= C_TWO_PI;
             }
             while(phi_1>= C_PI){
                 phi_1-= C_TWO_PI;
             }
-            phi_2= Site[ipx + Lx*(iy)].Psi[1].t - Site[ipx + Lx*(ipy)].Psi[1].t;
+            phi_2= Site[nn_ipx_ipy].Psi[1].t - Site[nn_ipx].Psi[1].t +  Site[nn_ipx].R_ext[1] + Hp.h * Hp.e * Site[nn_ipx].A[1];
             while(phi_2< -C_PI){
                 phi_2+= C_TWO_PI;
             }
             while(phi_2>= C_PI){
                 phi_2-= C_TWO_PI;
             }
-            phi_3= Site[ipx + Lx*(ipy)].Psi[1].t - Site[ix + Lx*(ipy)].Psi[1].t;
+            phi_3= Site[nn_ipy].Psi[1].t - Site[nn_ipx_ipy].Psi[1].t -  Site[nn_ipy].R_ext[0] - Hp.h * Hp.e * Site[nn_ipx].A[0] ;
             while(phi_3< -C_PI){
                 phi_3+= C_TWO_PI;
             }
             while(phi_3>= C_PI){
                 phi_3-= C_TWO_PI;
             }
-            phi_4= Site[ix + Lx*(ipy)].Psi[1].t - Site[ix + Lx*(iy)].Psi[1].t;
+            phi_4= phi_4= Site[i].Psi[0].t - Site[nn_ipy].Psi[0].t -  Site[i].R_ext[1] - Hp.h * Hp.e * Site[i].A[1];
             while(phi_4< -C_PI){
                 phi_4+= C_TWO_PI;
             }

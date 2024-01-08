@@ -66,6 +66,6 @@ void energy(struct Measures &mis, struct H_parameters &Hp, const std::vector<Nod
 void nematic_order(struct Measures &mis, const std::vector<Node> &Site);
 void save_lattice(const std::vector<Node> &Site, const fs::path & directory_write, const std::string &configuration);
 void save_lattice_chargezero(const std::vector<Node> &Site, const fs::path & directory_write, const std::string  &configuration);
-void vorticity(struct Measures &mis, const std::vector<Node> &Site);
+void vorticity(struct Measures &mis, struct H_parameters &Hp, const std::vector<Node> &Site);
 
 #endif //MEASURES_H
