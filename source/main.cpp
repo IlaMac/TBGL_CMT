@@ -8,7 +8,6 @@
 #include "tid/tid.h"
 #include <csignal>
 #include <cstdlib>
-#include <cstring>
 #include <h5pp/h5pp.h>
 #include <iostream>
 #include <string>
@@ -77,38 +76,6 @@ int main(int argc, char *argv[]){
     using namespace cfg;
 
     cli::parse(argc, argv);
-
-
-//    if(argc > 6 ){
-//        printf("Too many arguments!");
-//        myhelp(argc, argv);
-//    }
-//    else if(argc < 4){
-//        printf("Not enough arguments --> Default Initialization. \n");
-//        myhelp(argc, argv);
-//    }
-//    else if(argc ==4) {
-//        /*Rude way*/
-//        Lx=Ly= static_cast<size_t>(std::atoi(argv[1]));
-//        N=Lx*Ly;
-//        paths_dir::DIROUT=directory_parameters = argv[2];
-//        paths_dir::TEMP_DIROUT=directory_parameters_temp = argv[3];
-//    }
-//    else if(argc == 5){
-//        Lx=Ly= static_cast<size_t>(std::atoi(argv[1]));
-//        N=Lx*Ly;
-//        paths_dir::DIROUT=directory_parameters = argv[2];
-//        paths_dir::TEMP_DIROUT=directory_parameters_temp = argv[3];
-//        RESTART= std::atoi(argv[4]);
-//    }
-//    else if(argc == 6){
-//        Lx=Ly= static_cast<size_t>(std::atoi(argv[1]));
-//        N=Lx*Ly;
-//        paths_dir::DIROUT=directory_parameters = argv[2];
-//        paths_dir::TEMP_DIROUT=directory_parameters_temp = argv[3];
-//        RESTART= std::atoi(argv[4]);
-//        seednumber= reinterpret_cast<long> (argv[5]);
-//    }
 
     //Safe exit
     // Register termination codes and what to do in those cases
@@ -220,12 +187,12 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "Mx_nem", HOFFSET(Measures, Mx_nem), H5T_NATIVE_DOUBLE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "My_nem", HOFFSET(Measures, My_nem), H5T_NATIVE_DOUBLE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "Mz_nem", HOFFSET(Measures, Mz_nem), H5T_NATIVE_DOUBLE);
-    H5Tinsert(MY_HDF5_MEASURES_TYPE, "gamma", HOFFSET(Measures, gamma), H5T_NATIVE_DOUBLE);
-    H5Tinsert(MY_HDF5_MEASURES_TYPE, "Mx_gamma", HOFFSET(Measures, Mx_gamma), H5T_NATIVE_DOUBLE);
-    H5Tinsert(MY_HDF5_MEASURES_TYPE, "My_gamma", HOFFSET(Measures, My_gamma), H5T_NATIVE_DOUBLE);
-    H5Tinsert(MY_HDF5_MEASURES_TYPE, "Mx_theta12", HOFFSET(Measures, Mx_theta12), H5T_NATIVE_DOUBLE);
-    H5Tinsert(MY_HDF5_MEASURES_TYPE, "My_theta12", HOFFSET(Measures, My_theta12), H5T_NATIVE_DOUBLE);
-    H5Tinsert(MY_HDF5_MEASURES_TYPE, "theta12", HOFFSET(Measures, theta12), H5T_NATIVE_DOUBLE);
+//    H5Tinsert(MY_HDF5_MEASURES_TYPE, "gamma", HOFFSET(Measures, gamma), H5T_NATIVE_DOUBLE);
+//    H5Tinsert(MY_HDF5_MEASURES_TYPE, "Mx_gamma", HOFFSET(Measures, Mx_gamma), H5T_NATIVE_DOUBLE);
+//    H5Tinsert(MY_HDF5_MEASURES_TYPE, "My_gamma", HOFFSET(Measures, My_gamma), H5T_NATIVE_DOUBLE);
+//    H5Tinsert(MY_HDF5_MEASURES_TYPE, "Mx_theta12", HOFFSET(Measures, Mx_theta12), H5T_NATIVE_DOUBLE);
+//    H5Tinsert(MY_HDF5_MEASURES_TYPE, "My_theta12", HOFFSET(Measures, My_theta12), H5T_NATIVE_DOUBLE);
+//    H5Tinsert(MY_HDF5_MEASURES_TYPE, "theta12", HOFFSET(Measures, theta12), H5T_NATIVE_DOUBLE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "DH_Ddi", HOFFSET(Measures, DH_Ddi), HDF5_RHO_TYPE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "D2H_Dd2i", HOFFSET(Measures, D2H_Dd2i), HDF5_RHO_TYPE);
     //H5Tinsert(MY_HDF5_MEASURES_TYPE, "D2H_Dd2ij", HOFFSET(Measures, D2H_Dd2ij), HDF5_RHO_TYPE);

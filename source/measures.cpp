@@ -8,7 +8,6 @@
 #include "rnd.h"
 #include "tid/tid.h"
 #include <fmt/format.h>
-#include <list>
 
 
 void energy(struct Measures &mis, struct H_parameters &Hp, const std::vector<Node> &Site){
@@ -183,9 +182,9 @@ void nematic_order(struct Measures &mis, const std::vector<Node> &Site){
             while(gamma_temp< 0){
                 gamma_temp+=C_PI;
             }
-            mis.gamma+=(double)gamma_temp;
-            mis.Mx_gamma+= (double)cos(gamma_temp);
-            mis.My_gamma+= (double)sin(gamma_temp);
+//            mis.gamma+=(double)gamma_temp;
+//            mis.Mx_gamma+= (double)cos(gamma_temp);
+//            mis.My_gamma+= (double)sin(gamma_temp);
 
             theta_temp=(Site[ix+Lx*(iy)].Psi[0].t - Site[ix+Lx*(iy)].Psi[1].t);
             while(theta_temp >= C_PI){
@@ -194,9 +193,9 @@ void nematic_order(struct Measures &mis, const std::vector<Node> &Site){
             while(theta_temp< -C_PI){
                 theta_temp+=C_TWO_PI;
             }
-            mis.theta12+= (double)theta_temp;
-            mis.Mx_theta12+= (double)cos(theta_temp);
-            mis.My_theta12+= (double)sin(theta_temp);
+//            mis.theta12+= (double)theta_temp;
+//            mis.Mx_theta12+= (double)cos(theta_temp);
+//            mis.My_theta12+= (double)sin(theta_temp);
 
             mis.Mx_nem+= (double)sin(gamma_temp)* (double)cos(theta_temp);
             mis.My_nem+= (double)sin(gamma_temp)* (double)sin(theta_temp);
@@ -209,9 +208,8 @@ void nematic_order(struct Measures &mis, const std::vector<Node> &Site){
     }
 
     mis.density_diff/= static_cast<double>(N);
-    mis.gamma/= static_cast<double>(N);
-    mis.theta12/= static_cast<double>(N);
-    //std::cout<< " diff: "<<mis.density_diff << " gamma: "<<mis.gamma <<std::endl;
+//    mis.gamma/= static_cast<double>(N);
+//    mis.theta12/= static_cast<double>(N);
 
 }
 
@@ -334,175 +332,148 @@ void vorticity(struct Measures &mis, const std::vector<Node> &Site){
     }
 
     //Minimum size of composite vortices formed by a vortex (antivortex) in the component 0 and a vortex (antivortex) in the component 1
-    if(nv1!=0 && nv2!=0) {
-        for(size_t v1p=0; v1p<nv1; v1p++){
-            double temp_dist2 ,dist2=10000;
-            for(size_t v2p=0; v2p<nv2; v2p++) {
-                double dx= abs(coord_v1[v1p].first - coord_v2[v2p].first);
-                if (dx>(double)Lx/2){
-                    dx=(double)Lx-dx;
-                }
-                double dy=abs(coord_v1[v1p].second - coord_v2[v2p].second);
-                if (dy>(double)Ly/2){
-                    dy=(double)Ly-dy;
-                }
-                temp_dist2= dx*dx +dy*dy;
-                if (temp_dist2< dist2){
-                    dist2= temp_dist2;
-                }
-//                if(dist2==0) {
-//                    std::cout << "dx, dy" << dx << "," << dy << " min_dist2: " << dist2 << " coordinates v1: "
-//                              << coord_v1[v1p].first << ", " << coord_v1[v1p].second << " coordinates av2: "
-//                              << coord_v2[v2p].first << ", " << coord_v2[v2p].second << std::endl;
-//                }
-            }
-//            std::cout<< "distance nv1-nv2: " << sqrt(dist2) << std::endl;
-            mis.composite_vortex2_size+= sqrt(dist2);
-        }
-        mis.composite_vortex2_size/=(double)nv1;
-    }
-    else{
+    if(nv1==0 || nv2==0){
         mis.composite_vortex2_size=-1; //in the data analysis, I will consider only positive entries. In this way, I avoid to overcount the size "0".
-    }
+        }else{
+            for(size_t v1p=0; v1p<nv1; v1p++){
+                double temp_dist2 ,dist2=10000;
+                for(size_t v2p=0; v2p<nv2; v2p++) {
+                    double dx= abs(coord_v1[v1p].first - coord_v2[v2p].first);
+                    if (dx>(double)Lx/2){
+                        dx=(double)Lx-dx;
+                    }
+                    double dy=abs(coord_v1[v1p].second - coord_v2[v2p].second);
+                    if (dy>(double)Ly/2){
+                        dy=(double)Ly-dy;
+                    }
+                    temp_dist2= dx*dx +dy*dy;
+                    if (temp_dist2< dist2){
+                        dist2= temp_dist2;
+                    }
+                }
+                mis.composite_vortex2_size+= sqrt(dist2);
+            }
+            mis.composite_vortex2_size/=(double)nv1;
+        }
 
-    if(nav1!=0 && nav2!=0) {
-        for(size_t v1m=0; v1m<nav1; v1m++){
-            double temp_dist2 ,dist2=10000;
-            for(size_t v2m=0; v2m<nav2; v2m++) {
-                double dx= abs(coord_av1[v1m].first - coord_av2[v2m].first);
-                if (dx>(double)Lx/2){
-                    dx=(double)Lx-dx;
-                }
-                double dy=abs(coord_av1[v1m].second - coord_av2[v2m].second);
-                if (dy>(double)Ly/2){
-                    dy=(double)Ly-dy;
-                }
-                temp_dist2= dx*dx +dy*dy;
-                if (temp_dist2< dist2){
-                    dist2= temp_dist2;
-                }
-//                if(dist2==0){
-//                    std::cout<<"dx, dy"<< dx<< ","<< dy<<" min_dist2: "<< dist2 <<" coordinates av1: "<< coord_av1[v1m].first
-//                    << ", "<< coord_av1[v1m].second<< " coordinates av2: "<< coord_av2[v2m].first << ", "<< coord_av2[v2m].second<< std::endl;
-//                }
-            }
-//            std::cout<<"distance nav1-nav2: " << sqrt(dist2) << std::endl;
-            mis.composite_vortex2_size+=sqrt(dist2);
-        }
-        mis.composite_vortex2_size/=(double)nav1;
-    }
-    else{
+    if (nav1 == 0 || nav2 == 0) {
         mis.composite_vortex2_size=-1; //in the data analysis, I will consider only positive entries. In this way, I avoid to overcount the size "0".
-    }
+        }else{
+            for(size_t v1m=0; v1m<nav1; v1m++){
+                double temp_dist2 ,dist2=10000;
+                for(size_t v2m=0; v2m<nav2; v2m++) {
+                    double dx= abs(coord_av1[v1m].first - coord_av2[v2m].first);
+                    if (dx>(double)Lx/2){
+                        dx=(double)Lx-dx;
+                    }
+                    double dy=abs(coord_av1[v1m].second - coord_av2[v2m].second);
+                    if (dy>(double)Ly/2){
+                        dy=(double)Ly-dy;
+                    }
+                    temp_dist2= dx*dx +dy*dy;
+                    if (temp_dist2< dist2){
+                        dist2= temp_dist2;
+                    }
+                }
+                mis.composite_vortex2_size+=sqrt(dist2);
+            }
+            mis.composite_vortex2_size/=(double)nav1;
+        }
 
 
     //Minimum size of composite vortices formed by a vortex (antivortex) in the component 0 and an antivortex (vortex) in the component 1
-    if(nv1!=0 && nav2!=0) {
-        for(size_t v1p=0; v1p<nv1; v1p++){
-            double temp_dist2, dist2=10000;
-            for(size_t v2m=0; v2m<nav2; v2m++) {
-                double dx= abs(coord_v1[v1p].first - coord_av2[v2m].first);
-                if (dx>(double)Lx/2){
-                    dx=(double)Lx-dx;
+        if (nv1 == 0 || nav2 == 0) {
+            mis.composite_vortex1_size=-1; //in the data analysis, I will consider only positive entries. In this way, I avoid to overcount the size "0".
+        }
+        else{
+            for(size_t v1p=0; v1p<nv1; v1p++){
+                double temp_dist2, dist2=10000;
+                for(size_t v2m=0; v2m<nav2; v2m++) {
+                    double dx= abs(coord_v1[v1p].first - coord_av2[v2m].first);
+                    if (dx>(double)Lx/2){
+                        dx=(double)Lx-dx;
+                    }
+                    double dy= abs(coord_v1[v1p].second - coord_av2[v2m].second);
+                    if (dy>(double)Ly/2){
+                        dy=(double)Ly-dy;
+                    }
+                    temp_dist2= dx*dx +dy*dy;
+                    if (temp_dist2< dist2){
+                        dist2= temp_dist2;
+                    }
                 }
-                double dy= abs(coord_v1[v1p].second - coord_av2[v2m].second);
-                if (dy>(double)Ly/2){
-                    dy=(double)Ly-dy;
-                }
-                temp_dist2= dx*dx +dy*dy;
-                if (temp_dist2< dist2){
-                    dist2= temp_dist2;
-                }
-//                if(dist2==0){
-//                    std::cout<<"dx, dy"<< dx<< ","<< dy<<" min_dist2: "<< dist2 << " coordinates v1: "<< coord_v1[v1p].first << ", "<< coord_v1[v1p].second<< " coordinates av2: "<< coord_av2[v2m].first << ", "<< coord_av2[v2m].second<< std::endl;
-//                }
+                mis.composite_vortex1_size+=sqrt(dist2);
             }
-//            std::cout<< "distance nv1-nav2: " << sqrt(dist2) << std::endl;
-            mis.composite_vortex1_size+=sqrt(dist2);
+            mis.composite_vortex1_size/=(double) nv1;
         }
-        mis.composite_vortex1_size/=(double) nv1;
-    }
-    else{
-        mis.composite_vortex1_size=-1; //in the data analysis, I will consider only positive entries. In this way, I avoid to overcount the size "0".
-    }
 
-    if(nav1!=0 && nv2!=0) {
-        for(size_t v1m=0; v1m<nav1; v1m++){
-            double temp_dist2, dist2=10000;
-            for(size_t v2p=0; v2p<nv2; v2p++) {
-                double dx = abs(coord_av1[v1m].first - coord_v2[v2p].first);
-                if (dx > (double) Lx / 2) {
-                    dx = (double) Lx - dx;
+        if (nav1 == 0 || nv2 == 0) {
+        mis.composite_vortex1_size = -1; //in the data analysis, I will consider only positive entries. In this way, I avoid to overcount the size "0".
+        }
+        else {
+            for (size_t v1m = 0; v1m < nav1; v1m++) {
+                double temp_dist2, dist2 = 10000;
+                for (size_t v2p = 0; v2p < nv2; v2p++) {
+                    double dx = abs(coord_av1[v1m].first - coord_v2[v2p].first);
+                    if (dx > (double) Lx / 2) {
+                        dx = (double) Lx - dx;
+                    }
+                    double dy = abs(coord_av1[v1m].second - coord_v2[v2p].second);
+                    if (dy > (double) Ly / 2) {
+                        dy = (double) Ly - dy;
+                    }
+                    temp_dist2 = dx * dx + dy * dy;
+                    if (temp_dist2 < dist2) {
+                        dist2 = temp_dist2;
+                    }
+                    mis.composite_vortex1_size += sqrt(dist2);
                 }
-                double dy = abs(coord_av1[v1m].second - coord_v2[v2p].second);
-                if (dy > (double) Ly / 2) {
-                    dy = (double) Ly - dy;
-                }
-                temp_dist2 = dx * dx + dy * dy;
-                if (temp_dist2 < dist2) {
-                    dist2 = temp_dist2;
-                }
-//                if (dist2 == 0) {
-//                    std::cout << "dx, dy" << dx << "," << dy << "  min_dist2: " << dist2 << "coordinates av1: "
-//                              << coord_av1[v1m].first << ", " << coord_av1[v1m].second << " coordinates v2: "
-//                              << coord_v2[v2p].first << ", " << coord_v2[v2p].second << std::endl;
-//                }
+                mis.composite_vortex1_size /= (double) nav1;
             }
-//            std::cout<< "distance nav1-nv2: " << sqrt(dist2) << std::endl;
-            mis.composite_vortex1_size+=sqrt(dist2);
         }
-        mis.composite_vortex1_size/=(double)nav1;
-    }
-    else{
-        mis.composite_vortex1_size=-1; //in the data analysis, I will consider only positive entries. In this way, I avoid to overcount the size "0".
-    }
-//    std::cout<<" size c_v1: "<<  mis.composite_vortex1_size << " size c_v2: "<<  mis.composite_vortex2_size << std::endl;
-//    std::cout<< " nv1: "<<  nv1 << " nv2: "<<  nv2 << " nav1: "<<  nav1 << " nav2: "<<  nav2 << std::endl;
-
 }
 
 
+    void save_lattice(const std::vector<Node> &Site, const fs::path & directory_write, const std::string & configuration){
+        auto t_save = tid::tic_scope(__FUNCTION__);
 
-void save_lattice(const std::vector<Node> &Site, const fs::path & directory_write, const std::string & configuration){
-    auto t_save = tid::tic_scope(__FUNCTION__);
+        auto sPsi = fmt::format("Psi_{}.bin", configuration);
+        auto sA = fmt::format("A_{}.bin",configuration);
+        fs::path psi_init_file = directory_write / sPsi;
+        fs::path a_init_file = directory_write / sA;
 
-    auto sPsi = fmt::format("Psi_{}.bin", configuration);
-    auto sA = fmt::format("A_{}.bin",configuration);
-    fs::path psi_init_file = directory_write / sPsi;
-    fs::path a_init_file = directory_write / sA;
+        FILE *fPsi= nullptr;
+        FILE *fA= nullptr;
 
-    FILE *fPsi= nullptr;
-    FILE *fA= nullptr;
-
-    if((fPsi=fopen(psi_init_file.c_str(), "w"))) {
-        for (auto & s: Site) {
-            fwrite(s.Psi.data(), sizeof(struct O2), NC, fPsi);
+        if((fPsi=fopen(psi_init_file.c_str(), "w"))) {
+            for (auto & s: Site) {
+                fwrite(s.Psi.data(), sizeof(struct O2), NC, fPsi);
+            }
+            fclose(fPsi);
         }
-        fclose(fPsi);
+
+        if((fA=fopen(a_init_file.c_str(), "w"))) {
+            for (auto & s: Site) {
+                fwrite(s.A.data(), sizeof(double), DIM, fA);
+            }
+            fclose(fA);
+        }
+
     }
 
-    if((fA=fopen(a_init_file.c_str(), "w"))) {
-        for (auto & s: Site) {
-            fwrite(s.A.data(), sizeof(double), DIM, fA);
+    void save_lattice_chargezero(const std::vector<Node> &Site, const fs::path & directory_write, const std::string &configuration){
+        auto t_save = tid::tic_scope(__FUNCTION__);
+        auto sPsi= fmt::format("Psi_{}.bin", configuration);
+        fs::path psi_init_file = directory_write / sPsi;
+
+        FILE *fPsi= nullptr;
+
+        if((fPsi=fopen(psi_init_file.c_str(), "w"))) {
+            for (auto & s: Site) {
+                fwrite(s.Psi.data(), sizeof(struct O2), NC, fPsi);
+            }
+            fclose(fPsi);
         }
-        fclose(fA);
+
     }
-
-}
-
-void save_lattice_chargezero(const std::vector<Node> &Site, const fs::path & directory_write, const std::string &configuration){
-    auto t_save = tid::tic_scope(__FUNCTION__);
-    auto sPsi= fmt::format("Psi_{}.bin", configuration);
-    fs::path psi_init_file = directory_write / sPsi;
-
-    FILE *fPsi= nullptr;
-
-    if((fPsi=fopen(psi_init_file.c_str(), "w"))) {
-        for (auto & s: Site) {
-            fwrite(s.Psi.data(), sizeof(struct O2), NC, fPsi);
-        }
-        fclose(fPsi);
-    }
-
-}
 

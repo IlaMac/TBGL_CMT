@@ -31,12 +31,12 @@ struct Measures{
     double Mx_nem=0.;
     double My_nem=0.;
     double Mz_nem=0.;
-    double gamma=0.;
-    double Mx_gamma=0.;
-    double My_gamma=0.;
-    double Mx_theta12=0.;
-    double My_theta12=0.;
-    double theta12=0.;
+//    double gamma=0.;
+//    double Mx_gamma=0.;
+//    double My_gamma=0.;
+//    double Mx_theta12=0.;
+//    double My_theta12=0.;
+//    double theta12=0.;
     double DH_Ddi[NC]={0.}; //1st derivative in the twisted phase of the i component
     double D2H_Dd2i[NC]={0.}; //2nd derivative in the twisted phase of the i component
     // in this case the derivative of H with respect both the two current (mixed term) is zero
