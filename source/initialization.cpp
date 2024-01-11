@@ -96,8 +96,8 @@ void initialize_lattice(const std::vector<Node> &Site, const fs::path & director
     for (size_t ix = 0; ix < Lx; ix++) {
         for (size_t iy = 0; iy < Ly; iy++) {
             size_t i= ix +iy*Lx;
-            Site[i].R_ext[0]= C_TWO_PI*(Hp.fx/Lx)* static_cast<double>(iy);
-            Site[i].R_ext[1]= C_TWO_PI*(Hp.fy/Ly)* static_cast<double>(ix);
+            Site[i].R_ext[0]= (double)C_TWO_PI*(Hp.fx/Lx)* static_cast<double>(iy);
+            Site[i].R_ext[1]= (double)C_TWO_PI*(Hp.fy/Ly)* static_cast<double>(ix);
             }
         }
 
