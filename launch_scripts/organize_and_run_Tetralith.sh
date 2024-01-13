@@ -62,8 +62,8 @@ for L in $LLIST; do
 cd ${BASEDIR}/Output_TBGL_CMT
 
 if [[ "${ExtField}" == "1" ]]; then
-	H_fx=0.
-	H_fy=0.015625
+	H_fx=0
+	H_fy=1
 	if [ ! -d ./Sfx_${H_fx}_fy_${H_fy} ]; then
    		mkdir -p fx_${H_fx}_fy_${H_fy}
 	fi
@@ -115,8 +115,8 @@ fi
 cd /tmp/Output_x_ilaria
 
 if [[ "${ExtField}" == "1" ]]; then
-	H_fx=0.
-	H_fy=0.015625
+	H_fx=0
+	H_fy=1
 	if [ ! -d ./Sfx_${H_fx}_fy_${H_fy} ]; then
    		mkdir -p fx_${H_fx}_fy_${H_fy}
 	fi
