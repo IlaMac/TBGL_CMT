@@ -32,8 +32,8 @@ H_bhigh=8.0
 
 ExtField=1	# 0: no Field; 1: Field
 if [[ "${ExtField}" == "1" ]]; then
-	H_fx=0
-	H_fy=1
+	H_fx=0.
+	H_fy=0.015625 #1/64
 fi
 
 if [[ "${ExtField}" == "0" ]]; then

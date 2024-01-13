@@ -40,7 +40,7 @@ void initialize_Hparameters(struct H_parameters &Hp){
         Hp.b_high=2.8;
         /* A_fixed = (2\pi fx y_i, 2 \pi fy x_i)*/
         Hp.fx=0;
-        Hp.fy=1;
+        Hp.fy=0.015625;
         Hp.init=4;
         Hp.london_app=0;
 
@@ -96,8 +96,8 @@ void initialize_lattice(const std::vector<Node> &Site, const fs::path & director
     for (size_t ix = 0; ix < Lx; ix++) {
         for (size_t iy = 0; iy < Ly; iy++) {
             size_t i= ix +iy*Lx;
-            Site[i].R_ext[0]= (double)C_TWO_PI*(Hp.fx/Lx)* static_cast<double>(iy);
-            Site[i].R_ext[1]= (double)C_TWO_PI*(Hp.fy/Ly)* static_cast<double>(ix);
+            Site[i].R_ext[0]= (double)C_TWO_PI*(Hp.fx)* static_cast<double>(iy);
+            Site[i].R_ext[1]= (double)C_TWO_PI*(Hp.fy)* static_cast<double>(ix);
             }
         }
 
