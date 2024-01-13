@@ -345,16 +345,19 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
                 double temp_dist2 ,dist2=10000;
                 for(size_t v2p=0; v2p<nv2; v2p++) {
                     double dx= abs(coord_v1[v1p].first - coord_v2[v2p].first);
-                    if (dx>(double)Lx/2){
+                    while (dx>(double)Lx/2){
                         dx=(double)Lx-dx;
                     }
                     double dy=abs(coord_v1[v1p].second - coord_v2[v2p].second);
-                    if (dy>(double)Ly/2){
+                    while (dy>(double)Ly/2){
                         dy=(double)Ly-dy;
                     }
                     temp_dist2= dx*dx +dy*dy;
                     if (temp_dist2< dist2){
                         dist2= temp_dist2;
+                    }
+                    if(sqrt(dist2)>Lx){
+                        std::cout<<"v1p - v2p. dx=" << dx << " dy="<< dy<< " dist= "<< sqrt(dist2)  << std::endl;
                     }
                 }
                 mis.composite_vortex2_size+= sqrt(dist2);
@@ -369,16 +372,19 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
                 double temp_dist2 ,dist2=10000;
                 for(size_t v2m=0; v2m<nav2; v2m++) {
                     double dx= abs(coord_av1[v1m].first - coord_av2[v2m].first);
-                    if (dx>(double)Lx/2){
+                    while (dx>(double)Lx/2){
                         dx=(double)Lx-dx;
                     }
                     double dy=abs(coord_av1[v1m].second - coord_av2[v2m].second);
-                    if (dy>(double)Ly/2){
+                    while (dy>(double)Ly/2){
                         dy=(double)Ly-dy;
                     }
                     temp_dist2= dx*dx +dy*dy;
                     if (temp_dist2< dist2){
                         dist2= temp_dist2;
+                    }
+                    if(sqrt(dist2)>Lx){
+                        std::cout<<"v1m - v2m. dx=" << dx << " dy="<< dy<< " dist= "<< sqrt(dist2)  << std::endl;
                     }
                 }
                 mis.composite_vortex2_size+=sqrt(dist2);
@@ -396,16 +402,19 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
                 double temp_dist2, dist2=10000;
                 for(size_t v2m=0; v2m<nav2; v2m++) {
                     double dx= abs(coord_v1[v1p].first - coord_av2[v2m].first);
-                    if (dx>(double)Lx/2){
+                    while (dx>(double)Lx/2){
                         dx=(double)Lx-dx;
                     }
                     double dy= abs(coord_v1[v1p].second - coord_av2[v2m].second);
-                    if (dy>(double)Ly/2){
+                    while (dy>(double)Ly/2){
                         dy=(double)Ly-dy;
                     }
                     temp_dist2= dx*dx +dy*dy;
                     if (temp_dist2< dist2){
                         dist2= temp_dist2;
+                    }
+                    if(sqrt(dist2)>Lx){
+                        std::cout<<"v1p - v2m. dx=" << dx << " dy="<< dy<< " dist= "<< sqrt(dist2)  << std::endl;
                     }
                 }
                 mis.composite_vortex1_size+=sqrt(dist2);
@@ -421,21 +430,24 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
                 double temp_dist2, dist2 = 10000;
                 for (size_t v2p = 0; v2p < nv2; v2p++) {
                     double dx = abs(coord_av1[v1m].first - coord_v2[v2p].first);
-                    if (dx > (double) Lx / 2) {
+                    while (dx > (double) Lx / 2) {
                         dx = (double) Lx - dx;
                     }
                     double dy = abs(coord_av1[v1m].second - coord_v2[v2p].second);
-                    if (dy > (double) Ly / 2) {
+                    while (dy > (double) Ly / 2) {
                         dy = (double) Ly - dy;
                     }
                     temp_dist2 = dx * dx + dy * dy;
                     if (temp_dist2 < dist2) {
                         dist2 = temp_dist2;
                     }
-                    mis.composite_vortex1_size += sqrt(dist2);
+                    if(sqrt(dist2)>Lx){
+                        std::cout<<"v1m - v2p. dx=" << dx << " dy="<< dy<< " dist= "<< sqrt(dist2)  << std::endl;
+                    }
                 }
-                mis.composite_vortex1_size /= (double) nav1;
+                mis.composite_vortex1_size += sqrt(dist2);
             }
+            mis.composite_vortex1_size /= (double) nav1;
         }
 }
 
