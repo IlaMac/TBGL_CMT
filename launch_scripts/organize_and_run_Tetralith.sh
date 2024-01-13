@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+############### SET MAIN FOLDERS ###############
 BASEDIR=${HOME}/TBGL_CMT
 SCRIPT_DIR=${BASEDIR}/launch_scripts
 
@@ -8,16 +10,17 @@ cd /tmp/
 if [ ! -d ./SOutput_x_ilaria ]; then
    mkdir -p Output_x_ilaria
 fi
-
-#RESTART=0-> Restart from scratch
-#RESTART=1-> Restart from interrupted run
-#RESTART=2-> Restart from the previois final scenario
-
-RESTART=0
+#############################################
 
 time_limit="7-00:00:00"
 
 LLIST="16 32 48 64 96 128 192 256"
+
+
+RESTART=0
+#RESTART=0-> Restart from scratch
+#RESTART=1-> Restart from interrupted run
+#RESTART=2-> Restart from the previous final scenario
 
 ############ Parameters of the Hamiltonian ---> HP_init.txt in a directory whose name contains the main parameters values##################
 H_K=-2
@@ -38,6 +41,7 @@ H_init=4
 H_london=0
 #H_london=0 density update with total density constraint
 #H_london=1 London approximation
+
 ############ Parameters for the Monte Carlo simulations --> MC_init.txt#####################
 
 Nmisu=300000
@@ -49,31 +53,26 @@ theta_box=3.141592653
 A_box=0.1
 #meas_corr=0 #compute ot not the correlation functions
 
+#############################################
+
 for L in $LLIST; do
 
 ############Creation of the output folder and of the two files of initialization####################
 
 cd ${BASEDIR}/Output_TBGL_CMT
 
-if [ ${ExtField} = 1 ]; then
-
-
+if [[ "${ExtField}" == "1" ]]; then
 	H_fx=0.
 	H_fy=0.015625
-
 	if [ ! -d ./Sfx_${H_fx}_fy_${H_fy} ]; then
    		mkdir -p fx_${H_fx}_fy_${H_fy}
 	fi
-
 	cd fx_${H_fx}_fy_${H_fy}
-
 fi
 
-if [ ${ExtField} = 0 ]; then
-
+if [[ "${ExtField}" == "0" ]]; then
 	H_fx=0
 	H_fy=0
-
 fi
 
 if [ ! -d ./Slambda_${H_lambda} ]; then
@@ -104,9 +103,30 @@ if [ ! -d ./SL${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax$
    mkdir -p L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}
 fi
 
-OUTPUT=${BASEDIR}/Output_TBGL_CMT/lambda_${H_lambda}/K_${H_K}/e_${H_e}/h_${H_h}/L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}
+if [[ "${ExtField}" == "1" ]]; then
+  OUTPUT=${BASEDIR}/Output_TBGL_CMT/fx_${H_fx}_fy_${H_fy}/lambda_${H_lambda}/K_${H_K}/e_${H_e}/h_${H_h}/L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}
+fi
 
+if [[ "${ExtField}" == "0" ]]; then
+  OUTPUT=${BASEDIR}/Output_TBGL_CMT/lambda_${H_lambda}/K_${H_K}/e_${H_e}/h_${H_h}/L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}
+fi
+
+#############################################
 cd /tmp/Output_x_ilaria
+
+if [[ "${ExtField}" == "1" ]]; then
+	H_fx=0.
+	H_fy=0.015625
+	if [ ! -d ./Sfx_${H_fx}_fy_${H_fy} ]; then
+   		mkdir -p fx_${H_fx}_fy_${H_fy}
+	fi
+	cd fx_${H_fx}_fy_${H_fy}
+fi
+
+if  [[ "${ExtField}" == "0" ]]; then
+	H_fx=0
+	H_fy=0
+fi
 
 if [ ! -d ./Slambda_${H_lambda} ]; then
    mkdir -p lambda_${H_lambda}
@@ -136,9 +156,14 @@ if [ ! -d ./SL${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax$
    mkdir -p L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}
 fi
 
+if [[ "${ExtField}" == "1" ]]; then
+  OUTPUT_TEMP=/tmp/Output_x_ilaria/fx_${H_fx}_fy_${H_fy}/lambda_${H_lambda}/K_${H_K}/e_${H_e}/h_${H_h}/L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}
+fi
 
-OUTPUT_TEMP=/tmp/Output_x_ilaria/lambda_${H_lambda}/K_${H_K}/e_${H_e}/h_${H_h}/L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}
-
+if [[ "${ExtField}" == "0" ]]; then
+  OUTPUT_TEMP=/tmp/Output_x_ilaria/lambda_${H_lambda}/K_${H_K}/e_${H_e}/h_${H_h}/L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}
+fi
+#############################################
 
 cd ${OUTPUT}
 
@@ -166,7 +191,7 @@ echo $A_box >> MC_init.txt
 
 #################Creation of the submit_runs script#########################
 
-jobname="L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}"
+jobname="L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}_fx${H_fx}_fy${H_fy}"
 nnodes=2
 ntasks=64 #parallel tempering over ntasks temperatures
 
