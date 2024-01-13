@@ -216,6 +216,7 @@ void nematic_order(struct Measures &mis, const std::vector<Node> &Site){
 void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<Node> &Site ){
     using namespace cfg;
 
+    double B= C_TWO_PI*(Hp.fy - Hp.fx);
     auto t_vorticity = tid::tic_scope(__FUNCTION__);
     std::vector<std::pair<double, double>> coord_v1;
     std::vector<std::pair<double, double>> coord_av1;
@@ -236,10 +237,11 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
             //Convention gauge phase
             //gauge_phase = Site[nn_ip].Psi[alpha].t - Site[i].Psi[alpha].t + Site[i].R_ext[vec] + Hp.h * Hp.e * Site[i].A[vec];
             //Circuitation of the phase component 0 around the i-th plaquette
+            size_t alpha=0;
             size_t ipx= (ix == Lx-1 ? 0: ix+1);
             size_t i= ix + Lx*(iy);
             size_t nn_ipx=ipx + Lx*(iy);
-            double phi_1=  Site[nn_ipx].Psi[0].t -Site[i].Psi[0].t + Site[i].R_ext[0] + Hp.h * Hp.e * Site[i].A[0];
+            double phi_1=  Site[nn_ipx].Psi[alpha].t -Site[i].Psi[alpha].t + Site[i].R_ext[0] + Hp.h * Hp.e * Site[i].A[0];
             while(phi_1< -C_PI){
                 phi_1+= C_TWO_PI;
             }
@@ -248,7 +250,7 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
             }
             size_t ipy= (iy == Ly-1 ? 0: iy+1);
             size_t nn_ipx_ipy= ipx + Lx*(ipy);
-            double phi_2= Site[nn_ipx_ipy].Psi[0].t - Site[nn_ipx].Psi[0].t +  Site[nn_ipx].R_ext[1] + Hp.h * Hp.e * Site[nn_ipx].A[1];
+            double phi_2= Site[nn_ipx_ipy].Psi[alpha].t - Site[nn_ipx].Psi[alpha].t +  Site[nn_ipx].R_ext[1] + Hp.h * Hp.e * Site[nn_ipx].A[1];
             while(phi_2< -C_PI){
                 phi_2+= C_TWO_PI;
             }
@@ -256,69 +258,70 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
                 phi_2-= C_TWO_PI;
             }
             size_t nn_ipy= ix + Lx*(ipy);
-            double phi_3= Site[nn_ipy].Psi[0].t - Site[nn_ipx_ipy].Psi[0].t -  Site[nn_ipy].R_ext[0] - Hp.h * Hp.e * Site[nn_ipx].A[0] ;
+            double phi_3= Site[nn_ipy].Psi[alpha].t - Site[nn_ipx_ipy].Psi[alpha].t -  Site[nn_ipy].R_ext[0] - Hp.h * Hp.e * Site[nn_ipx].A[0] ;
             while(phi_3< -C_PI){
                 phi_3+= C_TWO_PI;
             }
             while(phi_3>= C_PI){
                 phi_3-= C_TWO_PI;
             }
-            double phi_4= Site[i].Psi[0].t - Site[nn_ipy].Psi[0].t -  Site[i].R_ext[1] - Hp.h * Hp.e * Site[i].A[1];
+            double phi_4= Site[i].Psi[alpha].t - Site[nn_ipy].Psi[alpha].t -  Site[i].R_ext[1] - Hp.h * Hp.e * Site[i].A[1];
             while(phi_4< -C_PI){
                 phi_4+= C_TWO_PI;
             }
             while(phi_4>= C_PI){
                 phi_4-= C_TWO_PI;
             }
-            n=(phi_1 + phi_2+ phi_3 + phi_4)/C_TWO_PI;
+            n=((phi_1 + phi_2+ phi_3 + phi_4) - B)/C_TWO_PI;
             if(n>0.01){
-               mis.vortex_density[0]+=1;
+               mis.vortex_density[alpha]+=1;
                coord_v1[nv1]= std::pair(ix, iy);
                nv1++;
             }
             else if(n<-0.01){
-                mis.antivortex_density[0]+=1;
+                mis.antivortex_density[alpha]+=1;
                 coord_av1[nav1]=(std::pair(ix, iy));
                 nav1++;
             }
 
             //Circuitation of the phase component 1 around the i-th plaquette
-            phi_1=  Site[nn_ipx].Psi[1].t -Site[i].Psi[1].t + Site[i].R_ext[0] + Hp.h * Hp.e * Site[i].A[0];
+            alpha=1;
+            phi_1=  Site[nn_ipx].Psi[alpha].t -Site[i].Psi[alpha].t + Site[i].R_ext[0] + Hp.h * Hp.e * Site[i].A[0];
             while(phi_1< -C_PI){
                 phi_1+= C_TWO_PI;
             }
             while(phi_1>= C_PI){
                 phi_1-= C_TWO_PI;
             }
-            phi_2= Site[nn_ipx_ipy].Psi[1].t - Site[nn_ipx].Psi[1].t +  Site[nn_ipx].R_ext[1] + Hp.h * Hp.e * Site[nn_ipx].A[1];
+            phi_2= Site[nn_ipx_ipy].Psi[alpha].t - Site[nn_ipx].Psi[alpha].t +  Site[nn_ipx].R_ext[1] + Hp.h * Hp.e * Site[nn_ipx].A[1];
             while(phi_2< -C_PI){
                 phi_2+= C_TWO_PI;
             }
             while(phi_2>= C_PI){
                 phi_2-= C_TWO_PI;
             }
-            phi_3= Site[nn_ipy].Psi[1].t - Site[nn_ipx_ipy].Psi[1].t -  Site[nn_ipy].R_ext[0] - Hp.h * Hp.e * Site[nn_ipx].A[0] ;
+            phi_3= Site[nn_ipy].Psi[alpha].t - Site[nn_ipx_ipy].Psi[alpha].t -  Site[nn_ipy].R_ext[0] - Hp.h * Hp.e * Site[nn_ipx].A[0] ;
             while(phi_3< -C_PI){
                 phi_3+= C_TWO_PI;
             }
             while(phi_3>= C_PI){
                 phi_3-= C_TWO_PI;
             }
-            phi_4= phi_4= Site[i].Psi[0].t - Site[nn_ipy].Psi[0].t -  Site[i].R_ext[1] - Hp.h * Hp.e * Site[i].A[1];
+            phi_4= phi_4= Site[i].Psi[alpha].t - Site[nn_ipy].Psi[alpha].t -  Site[i].R_ext[1] - Hp.h * Hp.e * Site[i].A[1];
             while(phi_4< -C_PI){
                 phi_4+= C_TWO_PI;
             }
             while(phi_4>= C_PI){
                 phi_4-= C_TWO_PI;
             }
-            n=(phi_1 + phi_2+ phi_3 + phi_4)/C_TWO_PI;
+            n=((phi_1 + phi_2+ phi_3 + phi_4)-B)/C_TWO_PI;
             if(n>0.01){
-                mis.vortex_density[1]+=1.;
+                mis.vortex_density[alpha]+=1.;
                 coord_v2[nv2]=(std::pair(ix, iy));
                 nv2++;
             }
             else if(n<-0.01){
-                mis.antivortex_density[1]+=1.;
+                mis.antivortex_density[alpha]+=1.;
                 coord_av2[nav2]=(std::pair(ix, iy));
                 nav2++;
             }
@@ -334,13 +337,14 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
     for(size_t alpha=0; alpha<NC; alpha++){
         mis.vortex_density[alpha]/=(double) N;
         mis.antivortex_density[alpha]/= (double) N;
-//        std::cout << "alpha: " << alpha << "vdensity: " << mis.vortex_density[alpha]<<std::endl ;
+//        std::cout << "alpha: " << alpha << "vdensity: " << mis.vortex_density[alpha] <<std::endl ;
     }
 
     //Minimum size of composite vortices formed by a vortex (antivortex) in the component 0 and a vortex (antivortex) in the component 1
     if(nv1==0 || nv2==0){
         mis.composite_vortex2_size=-1; //in the data analysis, I will consider only positive entries. In this way, I avoid to overcount the size "0".
-        }else{
+        }
+    else{
             for(size_t v1p=0; v1p<nv1; v1p++){
                 double temp_dist2 ,dist2=10000;
                 for(size_t v2p=0; v2p<nv2; v2p++) {
@@ -367,7 +371,8 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
 
     if (nav1 == 0 || nav2 == 0) {
         mis.composite_vortex2_size=-1; //in the data analysis, I will consider only positive entries. In this way, I avoid to overcount the size "0".
-        }else{
+        }
+    else{
             for(size_t v1m=0; v1m<nav1; v1m++){
                 double temp_dist2 ,dist2=10000;
                 for(size_t v2m=0; v2m<nav2; v2m++) {
@@ -391,7 +396,6 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
             }
             mis.composite_vortex2_size/=(double)nav1;
         }
-
 
     //Minimum size of composite vortices formed by a vortex (antivortex) in the component 0 and an antivortex (vortex) in the component 1
         if (nv1 == 0 || nav2 == 0) {
