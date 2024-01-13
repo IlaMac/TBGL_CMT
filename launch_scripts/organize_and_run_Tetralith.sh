@@ -14,7 +14,7 @@ fi
 
 time_limit="7-00:00:00"
 
-LLIST="16 32 48 64 96 128 192 256"
+LLIST="64"
 
 
 RESTART=0
@@ -23,14 +23,24 @@ RESTART=0
 #RESTART=2-> Restart from the previous final scenario
 
 ############ Parameters of the Hamiltonian ---> HP_init.txt in a directory whose name contains the main parameters values##################
-H_K=-2
+H_K=-1
 H_lambda=0.1
 H_e=0
 H_h=1
-H_blow=2.2
-H_bhigh=3.4
+H_blow=3.0
+H_bhigh=8.0
 
-ExtField=0	# 0: no Field; 1: Field
+ExtField=1	# 0: no Field; 1: Field
+if [[ "${ExtField}" == "1" ]]; then
+	H_fx=0
+	H_fy=1
+fi
+
+if [[ "${ExtField}" == "0" ]]; then
+	H_fx=0
+	H_fy=0
+fi
+
 H_init=4
 #If H_init=0: ground state K>0: \th_12=+pi/2; \gamma=pi/2
 #H_init=1: ground state K<0; lambda>0; \th_12=0; gamma=C_PI/3;
@@ -62,17 +72,10 @@ for L in $LLIST; do
 cd ${BASEDIR}/Output_TBGL_CMT
 
 if [[ "${ExtField}" == "1" ]]; then
-	H_fx=0
-	H_fy=1
 	if [ ! -d ./Sfx_${H_fx}_fy_${H_fy} ]; then
    		mkdir -p fx_${H_fx}_fy_${H_fy}
 	fi
 	cd fx_${H_fx}_fy_${H_fy}
-fi
-
-if [[ "${ExtField}" == "0" ]]; then
-	H_fx=0
-	H_fy=0
 fi
 
 if [ ! -d ./Slambda_${H_lambda} ]; then
@@ -115,18 +118,12 @@ fi
 cd /tmp/Output_x_ilaria
 
 if [[ "${ExtField}" == "1" ]]; then
-	H_fx=0
-	H_fy=1
 	if [ ! -d ./Sfx_${H_fx}_fy_${H_fy} ]; then
    		mkdir -p fx_${H_fx}_fy_${H_fy}
 	fi
 	cd fx_${H_fx}_fy_${H_fy}
 fi
 
-if  [[ "${ExtField}" == "0" ]]; then
-	H_fx=0
-	H_fy=0
-fi
 
 if [ ! -d ./Slambda_${H_lambda} ]; then
    mkdir -p lambda_${H_lambda}

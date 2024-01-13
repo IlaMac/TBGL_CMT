@@ -39,8 +39,8 @@ void initialize_Hparameters(struct H_parameters &Hp){
         Hp.b_low=2.5;
         Hp.b_high=2.8;
         /* A_fixed = (2\pi fx y_i, 2 \pi fy x_i)*/
-        Hp.fx=1.;
-        Hp.fy=1.;
+        Hp.fx=0;
+        Hp.fy=1;
         Hp.init=4;
         Hp.london_app=0;
 
