@@ -307,7 +307,7 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
             while(phi_3>= C_PI){
                 phi_3-= C_TWO_PI;
             }
-            phi_4= phi_4= Site[i].Psi[alpha].t - Site[nn_ipy].Psi[alpha].t -  Site[i].R_ext[1] - Hp.h * Hp.e * Site[i].A[1];
+            phi_4= Site[i].Psi[alpha].t - Site[nn_ipy].Psi[alpha].t -  Site[i].R_ext[1] - Hp.h * Hp.e * Site[i].A[1];
             while(phi_4< -C_PI){
                 phi_4+= C_TWO_PI;
             }
