@@ -455,8 +455,7 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
         }
 }
 
-
-    void save_lattice(const std::vector<Node> &Site, const fs::path & directory_write, const std::string & configuration){
+void save_lattice(const std::vector<Node> &Site, const fs::path & directory_write, const std::string & configuration){
         auto t_save = tid::tic_scope(__FUNCTION__);
 
         auto sPsi = fmt::format("Psi_{}.bin", configuration);
@@ -483,7 +482,7 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
 
     }
 
-    void save_lattice_chargezero(const std::vector<Node> &Site, const fs::path & directory_write, const std::string &configuration){
+void save_lattice_chargezero(const std::vector<Node> &Site, const fs::path & directory_write, const std::string &configuration){
         auto t_save = tid::tic_scope(__FUNCTION__);
         auto sPsi= fmt::format("Psi_{}.bin", configuration);
         fs::path psi_init_file = directory_write / sPsi;

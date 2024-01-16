@@ -217,12 +217,16 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
         /**Thermalization**/
         for (int t = 0; t < MCp.transient; t++) {
             metropolis(Site, MCp, Hp, my_beta);
+            metropolis2(Site, MCp, Hp, my_beta);
+
         }
     }
     for (int nM = NSTART; nM<MCp.nmisu; nM++) {
         for (int t = 0; t < MCp.tau; t++) {
 
             metropolis(Site, MCp, Hp, my_beta);
+            metropolis2(Site, MCp, Hp, my_beta);
+
             if(Hp.K>4){
                 wolff_BTRS(Site, MCp, Hp, my_beta);
             }

@@ -233,7 +233,7 @@ echo "#!/bin/bash
 #SBATCH --output=${DIR_PAR}/logs/log_${jobname}.o
 #SBATCH --error=${DIR_PAR}/logs/log_${jobname}.e
 
-srun ${EXECUTE_DIR}/CMT -L ${L} --outdir ${DIR_PAR} --tempdir ${DIR_PAR_TEMP} -r ${RESTART} -s -1 &> ${DIR_PAR}/logs/log_${jobname}.o
+srun ${EXECUTE_DIR}/CMT -L ${L} --outdir ${DIR_PAR} --tempdir ${DIR_PAR} -r ${RESTART} -s -1 &> ${DIR_PAR}/logs/log_${jobname}.o
 
 " >  submit_run
 
