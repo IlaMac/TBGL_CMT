@@ -119,8 +119,8 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
 void metropolis2(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp,  double my_beta){
     using namespace cfg;
     auto t_metropolis = tid::tic_scope(__FUNCTION__);
-    double l, d_theta, d_A, rand;
-    double acc_rate=0.5, acc_A=0., acc_theta=0.;
+    double d_theta, rand;
+    double acc_rate=0.5, acc_theta=0.;
     std::array<O2, NC> NewPsi{};
     std::array<O2, NC> OldPsi{};
     double NewA, OldA;
