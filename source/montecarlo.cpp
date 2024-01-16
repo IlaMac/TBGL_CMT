@@ -123,7 +123,6 @@ void metropolis2(const std::vector<Node> &Site, struct MC_parameters &MCp, struc
     double acc_rate=0.5, acc_theta=0.;
     std::array<O2, NC> NewPsi{};
     std::array<O2, NC> OldPsi{};
-    double NewA, OldA;
     double newE, oldE, minus_deltaE;
     double h2=(Hp.h*Hp.h);
 

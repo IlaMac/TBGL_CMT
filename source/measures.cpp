@@ -417,7 +417,7 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
                     if (temp_dist2< dist2){
                         dist2= temp_dist2;
                     }
-                    if(sqrt(dist2)>Lx){
+                    if(sqrt(dist2)>(double) Lx){
                         std::cout<<"v1p - v2m. dx=" << dx << " dy="<< dy<< " dist= "<< sqrt(dist2)  << std::endl;
                     }
                 }
@@ -445,7 +445,7 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
                     if (temp_dist2 < dist2) {
                         dist2 = temp_dist2;
                     }
-                    if(sqrt(dist2)>Lx){
+                    if(sqrt(dist2)>(double) Lx){
                         std::cout<<"v1m - v2p. dx=" << dx << " dy="<< dy<< " dist= "<< sqrt(dist2)  << std::endl;
                     }
                 }
