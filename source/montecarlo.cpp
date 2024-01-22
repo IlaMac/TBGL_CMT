@@ -186,7 +186,6 @@ double local_HPsi(std::array<O2, NC> &Psi, size_t ix, size_t iy, H_parameters &H
 
     //Compute the local Energy respect to a given component (alpha) of the matter field Psi and a given spatial position (r=(ix, iy, iz))
     //We need to compute just the part of the Hamiltonian involving Psi
-
     for(size_t alpha=0; alpha<NC; alpha ++) {
         //Kinetic= -(1/h²)*\sum_k=1,2 (|Psi_{alpha}(r)||Psi_{alpha}(r+k)|* cos(theta_{alpha}(r+k) - theta_{alpha}(r) +h*e*A_k(r))) + (|Psi_{alpha}(r-k)||Psi_{alpha}(r)|* cos(theta_{alpha}(r) - theta_{alpha}(r-k) +h*e*A_k(r-k)))
         for (size_t vec = 0; vec < DIM; vec++) {
