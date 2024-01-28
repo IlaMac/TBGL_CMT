@@ -11,10 +11,10 @@
 #include "montecarlo.h"
 #include "initialization.h"
 #include "o2.h"
+#include <h5pp/h5pp.h>
 
 
 struct Measures{
-
 /*******THE ORDER SHOULD BE THE SAME OF THE H5T INSERT REGISTRATION**************/
     double E=0.; //Energy
     double E_josephson=0.;
@@ -31,32 +31,23 @@ struct Measures{
     double Mx_nem=0.;
     double My_nem=0.;
     double Mz_nem=0.;
-//    double gamma=0.;
-//    double Mx_gamma=0.;
-//    double My_gamma=0.;
-//    double Mx_theta12=0.;
-//    double My_theta12=0.;
-//    double theta12=0.;
     double DH_Ddi[NC]={0.}; //1st derivative in the twisted phase of the i component
     double D2H_Dd2i[NC]={0.}; //2nd derivative in the twisted phase of the i component
     // in this case the derivative of H with respect both the two current (mixed term) is zero
     //double D2H_Dd2ij[NC]={0}; //2nd mixed derivative in the twisted phases of the component i and j
-    double vortex_density[NC]={0.};
-    double antivortex_density[NC]={0.};
-    double composite_vortex1_size=0.; //size of composite vortices in the two components with opposite vorticity
-    double composite_vortex2_size=0.; //size of composite vortices in the two components with the same vorticity
-
-    //see https://github.com/DavidAce/h5pp/blob/master/examples/example-04b-compound-datatype-fixed-arrays.cpp
-//    double C1[500]={0.};
-//    double C2[500]={0.};
-//    double C12[500]={0.};
-
+    // see https://github.com/DavidAce/h5pp/blob/master/examples/example-04b-compound-datatype-fixed-arrays.cpp
     int my_rank = 0;
     void reset(){
         *this = Measures();
     }
 };
 
+struct Vdensity {
+    double v1[2]={0.}; //first component +, second -
+    double v2[2]={0.};
+    double v1v2[2]={0.}; //first component ++, second --
+    double v1av2[2]={0.}; //first component +-, second -+
+};
 
 void helicity_modulus(struct Measures &mis, struct H_parameters &Hp, const std::vector<Node> &Site);
 void dual_stiffness(struct Measures &mis, struct H_parameters &Hp, const std::vector<Node> &Site);
@@ -66,6 +57,6 @@ void energy(struct Measures &mis, struct H_parameters &Hp, const std::vector<Nod
 void nematic_order(struct Measures &mis, const std::vector<Node> &Site);
 void save_lattice(const std::vector<Node> &Site, const fs::path & directory_write, const std::string &configuration);
 void save_lattice_chargezero(const std::vector<Node> &Site, const fs::path & directory_write, const std::string  &configuration);
-void vorticity(struct Measures &mis, struct H_parameters &Hp, const std::vector<Node> &Site);
-
+void new_vorticity(std::vector<Vdensity> &local_vort_density ,struct H_parameters &Hp, const std::vector<Node> &Site );
+void save_vortexlattice(const std::vector<Vdensity> &v_local, const fs::path & directory_write, const std::string & configuration);
 #endif //MEASURES_H

@@ -213,27 +213,16 @@ void nematic_order(struct Measures &mis, const std::vector<Node> &Site){
 
 }
 
-void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<Node> &Site ){
+void new_vorticity(std::vector<Vdensity> &local_vort_density, struct H_parameters &Hp, const std::vector<Node> &Site ){
     using namespace cfg;
 
     double B= C_TWO_PI*(Hp.fy - Hp.fx);
     auto t_vorticity = tid::tic_scope(__FUNCTION__);
-    std::vector<std::pair<double, double>> coord_v1;
-    std::vector<std::pair<double, double>> coord_av1;
-
-    std::vector<std::pair<double, double>> coord_v2;
-    std::vector<std::pair<double, double>> coord_av2;
-
-    coord_v1.resize(N);
-    coord_v2.resize(N);
-    coord_av1.resize(N);
-    coord_av2.resize(N);
-
-    size_t nv1=0, nv2=0, nav1=0, nav2=0;
 
     for (size_t iy = 0; iy < Ly; iy++) {
         for (size_t ix = 0; ix < Lx; ix++) {
             double n=0;
+            size_t nv1=0, nv2=0, nav1=0, nav2=0;
             //Convention gauge phase
             //gauge_phase = Site[nn_ip].Psi[alpha].t - Site[i].Psi[alpha].t + Site[i].R_ext[vec] + Hp.h * Hp.e * Site[i].A[vec];
             //Circuitation of the phase component 0 around the i-th plaquette
@@ -257,6 +246,7 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
             while(phi_2>= C_PI){
                 phi_2-= C_TWO_PI;
             }
+//           phi_2= fmod(phi_2 + C_PI, C_TWO_PI) - C_PI; //check if it is the same operation as the one above
             size_t nn_ipy= ix + Lx*(ipy);
             double phi_3= Site[nn_ipy].Psi[alpha].t - Site[nn_ipx_ipy].Psi[alpha].t -  Site[nn_ipy].R_ext[0] - Hp.h * Hp.e * Site[nn_ipx].A[0] ;
             while(phi_3< -C_PI){
@@ -274,14 +264,12 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
             }
             n=((phi_1 + phi_2+ phi_3 + phi_4) - B)/C_TWO_PI;
             if(n>0.01){
-               mis.vortex_density[alpha]+=1;
-               coord_v1[nv1]= std::pair(ix, iy);
-               nv1++;
+                local_vort_density[i].v1[0]+=1;
+                nv1=1;
             }
             else if(n<-0.01){
-                mis.antivortex_density[alpha]+=1;
-                coord_av1[nav1]=(std::pair(ix, iy));
-                nav1++;
+                local_vort_density[i].v1[1]+=1;
+                nav1=1;
             }
 
             //Circuitation of the phase component 1 around the i-th plaquette
@@ -316,145 +304,55 @@ void vorticity(struct Measures &mis,struct H_parameters &Hp, const std::vector<N
             }
             n=((phi_1 + phi_2+ phi_3 + phi_4)-B)/C_TWO_PI;
             if(n>0.01){
-                mis.vortex_density[alpha]+=1.;
-                coord_v2[nv2]=(std::pair(ix, iy));
-                nv2++;
+                local_vort_density[i].v2[0]+=1;
+                nv2=1;
             }
             else if(n<-0.01){
-                mis.antivortex_density[alpha]+=1.;
-                coord_av2[nav2]=(std::pair(ix, iy));
-                nav2++;
+                local_vort_density[i].v2[1]+=1;
+                nav2=1;
             }
-
+            if( (nv1==1) && (nv2==1)){
+                local_vort_density[i].v1v2[0]+=1;
+            }else if((nav1==1) && (nav2==1)){
+                local_vort_density[i].v1v2[1]+=1;
+            }else if((nv1==1) && (nav2==1)){
+                local_vort_density[i].v1av2[0]+=1;
+            }else if((nav1==1) && (nv2==1)){
+                local_vort_density[i].v1av2[1]+=1;
+            }
         }
     }
 
-    coord_v1.resize(nv1);
-    coord_v2.resize(nv2);
-    coord_av1.resize(nav1);
-    coord_av2.resize(nav2);
-
-    for(size_t alpha=0; alpha<NC; alpha++){
-        mis.vortex_density[alpha]/=(double) N;
-        mis.antivortex_density[alpha]/= (double) N;
-//        std::cout << "alpha: " << alpha << "vdensity: " << mis.vortex_density[alpha] <<std::endl ;
-    }
-
-    //Minimum size of composite vortices formed by a vortex (antivortex) in the component 0 and a vortex (antivortex) in the component 1
-    if(nv1==0 || nv2==0){
-        mis.composite_vortex2_size=-1; //in the data analysis, I will consider only positive entries. In this way, I avoid to overcount the size "0".
-        }
-    else{
-            for(size_t v1p=0; v1p<nv1; v1p++){
-                double temp_dist2 ,dist2=10000;
-                for(size_t v2p=0; v2p<nv2; v2p++) {
-                    double dx= abs(coord_v1[v1p].first - coord_v2[v2p].first);
-                    while (dx>(double)Lx/2){
-                        dx=(double)Lx-dx;
-                    }
-                    double dy=abs(coord_v1[v1p].second - coord_v2[v2p].second);
-                    while (dy>(double)Ly/2){
-                        dy=(double)Ly-dy;
-                    }
-                    temp_dist2= dx*dx +dy*dy;
-                    if (temp_dist2< dist2){
-                        dist2= temp_dist2;
-                    }
-                    if(sqrt(dist2)>(double)Lx){
-                        std::cout<<"v1p - v2p. dx=" << dx << " dy="<< dy<< " dist= "<< sqrt(dist2)  << std::endl;
-                    }
-                }
-                mis.composite_vortex2_size+= sqrt(dist2);
-            }
-            mis.composite_vortex2_size/=(double)nv1;
-        }
-
-    if (nav1 == 0 || nav2 == 0) {
-        mis.composite_vortex2_size=-1; //in the data analysis, I will consider only positive entries. In this way, I avoid to overcount the size "0".
-        }
-    else{
-            for(size_t v1m=0; v1m<nav1; v1m++){
-                double temp_dist2 ,dist2=10000;
-                for(size_t v2m=0; v2m<nav2; v2m++) {
-                    double dx= abs(coord_av1[v1m].first - coord_av2[v2m].first);
-                    while (dx>(double)Lx/2){
-                        dx=(double)Lx-dx;
-                    }
-                    double dy=abs(coord_av1[v1m].second - coord_av2[v2m].second);
-                    while (dy>(double)Ly/2){
-                        dy=(double)Ly-dy;
-                    }
-                    temp_dist2= dx*dx +dy*dy;
-                    if (temp_dist2< dist2){
-                        dist2= temp_dist2;
-                    }
-                    if(sqrt(dist2)>(double)Lx){
-                        std::cout<<"v1m - v2m. dx=" << dx << " dy="<< dy<< " dist= "<< sqrt(dist2)  << std::endl;
-                    }
-                }
-                mis.composite_vortex2_size+=sqrt(dist2);
-            }
-            mis.composite_vortex2_size/=(double)nav1;
-        }
-
-    //Minimum size of composite vortices formed by a vortex (antivortex) in the component 0 and an antivortex (vortex) in the component 1
-        if (nv1 == 0 || nav2 == 0) {
-            mis.composite_vortex1_size=-1; //in the data analysis, I will consider only positive entries. In this way, I avoid to overcount the size "0".
-        }
-        else{
-            for(size_t v1p=0; v1p<nv1; v1p++){
-                double temp_dist2, dist2=10000;
-                for(size_t v2m=0; v2m<nav2; v2m++) {
-                    double dx= abs(coord_v1[v1p].first - coord_av2[v2m].first);
-                    while (dx>(double)Lx/2){
-                        dx=(double)Lx-dx;
-                    }
-                    double dy= abs(coord_v1[v1p].second - coord_av2[v2m].second);
-                    while (dy>(double)Ly/2){
-                        dy=(double)Ly-dy;
-                    }
-                    temp_dist2= dx*dx +dy*dy;
-                    if (temp_dist2< dist2){
-                        dist2= temp_dist2;
-                    }
-                    if(sqrt(dist2)>(double) Lx){
-                        std::cout<<"v1p - v2m. dx=" << dx << " dy="<< dy<< " dist= "<< sqrt(dist2)  << std::endl;
-                    }
-                }
-                mis.composite_vortex1_size+=sqrt(dist2);
-            }
-            mis.composite_vortex1_size/=(double) nv1;
-        }
-
-        if (nav1 == 0 || nv2 == 0) {
-        mis.composite_vortex1_size = -1; //in the data analysis, I will consider only positive entries. In this way, I avoid to overcount the size "0".
-        }
-        else {
-            for (size_t v1m = 0; v1m < nav1; v1m++) {
-                double temp_dist2, dist2 = 10000;
-                for (size_t v2p = 0; v2p < nv2; v2p++) {
-                    double dx = abs(coord_av1[v1m].first - coord_v2[v2p].first);
-                    while (dx > (double) Lx / 2) {
-                        dx = (double) Lx - dx;
-                    }
-                    double dy = abs(coord_av1[v1m].second - coord_v2[v2p].second);
-                    while (dy > (double) Ly / 2) {
-                        dy = (double) Ly - dy;
-                    }
-                    temp_dist2 = dx * dx + dy * dy;
-                    if (temp_dist2 < dist2) {
-                        dist2 = temp_dist2;
-                    }
-                    if(sqrt(dist2)>(double) Lx){
-                        std::cout<<"v1m - v2p. dx=" << dx << " dy="<< dy<< " dist= "<< sqrt(dist2)  << std::endl;
-                    }
-                }
-                mis.composite_vortex1_size += sqrt(dist2);
-            }
-            mis.composite_vortex1_size /= (double) nav1;
-        }
 }
 
+void save_vortexlattice(const std::vector<Vdensity> &v_local, const fs::path & directory_write, const std::string & configuration){
+    using namespace cfg;
+    auto t_save = tid::tic_scope(__FUNCTION__);
+
+    h5pp::File file;
+    auto sVfile = fmt::format("Vortex_Density_{}.h5", configuration);
+
+    file=h5pp::File(directory_write/sVfile, h5pp::FilePermission::REPLACE);
+    file.setCompressionLevel(0);
+    // Register the compound type
+    std::array<hsize_t, 1> rho_dims = {NC};
+    h5pp::hid::h5t HDF5_RHO_TYPE = H5Tarray_create(H5T_NATIVE_DOUBLE, rho_dims.size(), rho_dims.data());
+    h5pp::hid::h5t MY_HDF5_MEASURES_TYPE = H5Tcreate(H5T_COMPOUND, sizeof(Vdensity));
+
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "v1", HOFFSET(Vdensity, v1),  HDF5_RHO_TYPE);
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "v2", HOFFSET(Vdensity, v2),  HDF5_RHO_TYPE);
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "v1v2", HOFFSET(Vdensity, v1v2),  HDF5_RHO_TYPE);
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "v1av2", HOFFSET(Vdensity, v1av2),  HDF5_RHO_TYPE);
+
+    file.createTable(MY_HDF5_MEASURES_TYPE, "VDensities", "VDensities");
+
+    for(size_t i=0; i<N; i++){
+        file.appendTableRecords(v_local[i], "VDensities");
+    }
+    MPI_Barrier(MPI_COMM_WORLD);
+
+
+}
 void save_lattice(const std::vector<Node> &Site, const fs::path & directory_write, const std::string & configuration){
         auto t_save = tid::tic_scope(__FUNCTION__);
 

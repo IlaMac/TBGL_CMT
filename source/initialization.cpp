@@ -31,19 +31,17 @@ void initialize_Hparameters(struct H_parameters &Hp){
             //With this modification Hp.beta in not anymore part of the Hamiltonian parameters list
         }
     }else{
-
-        Hp.K=-1;
-        Hp.lambda=0.1;
+        Hp.K=1;
+        Hp.lambda=0;
         Hp.e=0;
         Hp.h= 1;
-        Hp.b_low=0.1;
-        Hp.b_high=10.0;
+        Hp.b_low=5.0;
+        Hp.b_high=30.0;
         /* A_fixed = (2\pi fx y_i, 2 \pi fy x_i)*/
         Hp.fx=0;
-        Hp.fy=0.;
+        Hp.fy=1./8;
         Hp.init=4;
         Hp.london_app=0;
-
     }
 
 }
@@ -66,10 +64,10 @@ void initialize_MCparameters(struct MC_parameters &MCp){
             fclose(fin);
         }
     }else{
-        MCp.nmisu=5000;
-        MCp.tau=32;
-        MCp.transient=1000;
-        MCp.freq_autosave=6000;
+        MCp.nmisu=10000;
+        MCp.tau=100;
+        MCp.transient=2000;
+        MCp.freq_autosave=5000;
         MCp.lbox_l=1.0;
         MCp.lbox_theta=C_PI*0.25;
         MCp.lbox_A=0.1;

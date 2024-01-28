@@ -6,3 +6,4 @@ libs/
 .vscode/
 toolchains/
 Output*/
+launch*/

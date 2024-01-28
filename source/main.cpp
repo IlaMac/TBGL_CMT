@@ -149,8 +149,15 @@ int main(int argc, char *argv[]){
 }
 
 void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp, double &my_beta, int &my_ind, struct PT_parameters PTp, struct PTroot_parameters PTroot, int NSTART) {
+    using namespace cfg;
+
     /*Measurements*/
     Measures mis;
+    /*Auxiliary Measure struct for vortices*/
+    std::vector <Vdensity> local_vort_density;
+    local_vort_density.resize(N);
+
+    std::cout<< "check" << local_vort_density[2].v1[0] << std::endl;
 
     auto directory_write_temp = fmt::format("{}/beta_{}", cfg::paths_dir::directory_parameters_temp , my_ind);
     h5pp::File file;
@@ -173,6 +180,7 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
     h5pp::hid::h5t HDF5_RHO_TYPE = H5Tarray_create(H5T_NATIVE_DOUBLE, rho_dims.size(), rho_dims.data());
 
     h5pp::hid::h5t MY_HDF5_MEASURES_TYPE = H5Tcreate(H5T_COMPOUND, sizeof(Measures));
+
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "E", HOFFSET(Measures, E), H5T_NATIVE_DOUBLE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "E_josephson", HOFFSET(Measures, E_josephson), H5T_NATIVE_DOUBLE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "E_lambda", HOFFSET(Measures, E_lambda), H5T_NATIVE_DOUBLE);
@@ -187,31 +195,16 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "Mx_nem", HOFFSET(Measures, Mx_nem), H5T_NATIVE_DOUBLE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "My_nem", HOFFSET(Measures, My_nem), H5T_NATIVE_DOUBLE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "Mz_nem", HOFFSET(Measures, Mz_nem), H5T_NATIVE_DOUBLE);
-//    H5Tinsert(MY_HDF5_MEASURES_TYPE, "gamma", HOFFSET(Measures, gamma), H5T_NATIVE_DOUBLE);
-//    H5Tinsert(MY_HDF5_MEASURES_TYPE, "Mx_gamma", HOFFSET(Measures, Mx_gamma), H5T_NATIVE_DOUBLE);
-//    H5Tinsert(MY_HDF5_MEASURES_TYPE, "My_gamma", HOFFSET(Measures, My_gamma), H5T_NATIVE_DOUBLE);
-//    H5Tinsert(MY_HDF5_MEASURES_TYPE, "Mx_theta12", HOFFSET(Measures, Mx_theta12), H5T_NATIVE_DOUBLE);
-//    H5Tinsert(MY_HDF5_MEASURES_TYPE, "My_theta12", HOFFSET(Measures, My_theta12), H5T_NATIVE_DOUBLE);
-//    H5Tinsert(MY_HDF5_MEASURES_TYPE, "theta12", HOFFSET(Measures, theta12), H5T_NATIVE_DOUBLE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "DH_Ddi", HOFFSET(Measures, DH_Ddi), HDF5_RHO_TYPE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "D2H_Dd2i", HOFFSET(Measures, D2H_Dd2i), HDF5_RHO_TYPE);
     //H5Tinsert(MY_HDF5_MEASURES_TYPE, "D2H_Dd2ij", HOFFSET(Measures, D2H_Dd2ij), HDF5_RHO_TYPE);
-    H5Tinsert(MY_HDF5_MEASURES_TYPE, "vortex_density", HOFFSET(Measures, vortex_density), HDF5_RHO_TYPE);
-    H5Tinsert(MY_HDF5_MEASURES_TYPE, "antivortex_density", HOFFSET(Measures, antivortex_density), HDF5_RHO_TYPE);
-    H5Tinsert(MY_HDF5_MEASURES_TYPE, "composite_vortex1_size", HOFFSET(Measures, composite_vortex1_size), H5T_NATIVE_DOUBLE);
-    H5Tinsert(MY_HDF5_MEASURES_TYPE, "composite_vortex2_size", HOFFSET(Measures, composite_vortex2_size), H5T_NATIVE_DOUBLE);
 
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "rank", HOFFSET(Measures, my_rank), H5T_NATIVE_INT);
-
 
     file.createTable(MY_HDF5_MEASURES_TYPE, "Measurements", "Measures");
 
     //Initial configuration
     save_lattice(Site, directory_write_temp, std::string("init"));
-
-    //std::vector<double> testvec (1000000,3.14);
-    //file.writeDataset(testvec,"testgroup/hugevector", H5D_layout_t::H5D_CHUNKED);
-
 
     if(NSTART==0){
         /**Thermalization**/
@@ -227,36 +220,22 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
             metropolis(Site, MCp, Hp, my_beta);
             metropolis2(Site, MCp, Hp, my_beta);
 
-            if(Hp.K>4){
-                wolff_BTRS(Site, MCp, Hp, my_beta);
-            }
-            if(Hp.K<-4){
-                wolff_nemK(Site, MCp, Hp, my_beta);
-            }
+            (Hp.K>4) ? wolff_BTRS(Site, MCp, Hp, my_beta) : void() ;
+            (Hp.K<-4) ? wolff_nemK(Site, MCp, Hp, my_beta) : void();
         }
         {
             //Measure
             auto t_measure = tid::tic_scope("measure");
             mis.reset();
             energy(mis, Hp, Site);
-
             Z2_magnetization(mis, Site);
             magnetization_singlephase(mis,  Site);
-            vorticity( mis, Hp, Site);
-
-            if(Hp.e ==0) {
-                helicity_modulus(mis, Hp, Site);
-            }else {
-                dual_stiffness(mis, Hp, Site);
-            }
-
-            if(Hp.K<0){
-                nematic_order(mis, Site);
-            }
+            new_vorticity( local_vort_density, Hp, Site);
+            (Hp.e == 0) ? helicity_modulus(mis, Hp, Site) : dual_stiffness(mis, Hp, Site);
+            (Hp.K < 0) ? nematic_order(mis, Site) : void();
 
             mis.my_rank=PTp.rank;
         }
-
 
         {
             auto t_h5pp = tid::tic_token("h5pp");
@@ -276,7 +255,8 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
             }else{
                 save_lattice_chargezero(Site, directory_write_temp, std::string("n")+std::to_string(nM));
             }
-        }
+            save_vortexlattice(local_vort_density,directory_write_temp, std::string("n")+std::to_string(nM));
+            }
 
         //Parallel Tempering swap
         parallel_temp(mis.E, my_beta, my_ind, PTp, PTroot);
@@ -285,8 +265,10 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
         file = h5pp::File(directory_write_temp+"/Output.h5", h5pp::FilePermission::READWRITE);
     }
     save_lattice(Site, directory_write_temp, std::string("final"));
+    save_vortexlattice(local_vort_density,directory_write_temp, std::string("final"));
     MPI_Barrier(MPI_COMM_WORLD);
 }
+
 
 size_t nn(size_t i, size_t coord, int dir){
     using namespace cfg;
