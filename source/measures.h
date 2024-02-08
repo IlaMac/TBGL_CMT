@@ -31,6 +31,14 @@ struct Measures{
     double Mx_nem=0.;
     double My_nem=0.;
     double Mz_nem=0.;
+    double Mx_gamma=0.;
+    double My_gamma=0.;
+    double Mx_theta12=0.;
+    double My_theta12=0.;
+    double vortex_density[NC]={0.};
+    double antivortex_density[NC]={0.};
+    double v1v2_density[NC]={0.};
+    double v1av2_density[NC]={0.};
     double DH_Ddi[NC]={0.}; //1st derivative in the twisted phase of the i component
     double D2H_Dd2i[NC]={0.}; //2nd derivative in the twisted phase of the i component
     // in this case the derivative of H with respect both the two current (mixed term) is zero
@@ -45,7 +53,7 @@ struct Measures{
 struct Vdensity {
     double v1[2]={0.}; //first component +, second -
     double v2[2]={0.};
-    double v1v2[2]={0.}; //first component ++, second --
+    double v1v2[2]; //first component ++, second --
     double v1av2[2]={0.}; //first component +-, second -+
 };
 
@@ -57,6 +65,6 @@ void energy(struct Measures &mis, struct H_parameters &Hp, const std::vector<Nod
 void nematic_order(struct Measures &mis, const std::vector<Node> &Site);
 void save_lattice(const std::vector<Node> &Site, const fs::path & directory_write, const std::string &configuration);
 void save_lattice_chargezero(const std::vector<Node> &Site, const fs::path & directory_write, const std::string  &configuration);
-void new_vorticity(std::vector<Vdensity> &local_vort_density ,struct H_parameters &Hp, const std::vector<Node> &Site );
+void new_vorticity(struct Measures &mis, std::vector<Vdensity> &local_vort_density ,struct H_parameters &Hp, const std::vector<Node> &Site );
 void save_vortexlattice(const std::vector<Vdensity> &v_local, const fs::path & directory_write, const std::string & configuration);
 #endif //MEASURES_H

@@ -157,6 +157,7 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
     std::vector <Vdensity> local_vort_density;
     local_vort_density.resize(N);
 
+
     std::cout<< "check" << local_vort_density[2].v1[0] << std::endl;
 
     auto directory_write_temp = fmt::format("{}/beta_{}", cfg::paths_dir::directory_parameters_temp , my_ind);
@@ -195,6 +196,14 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "Mx_nem", HOFFSET(Measures, Mx_nem), H5T_NATIVE_DOUBLE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "My_nem", HOFFSET(Measures, My_nem), H5T_NATIVE_DOUBLE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "Mz_nem", HOFFSET(Measures, Mz_nem), H5T_NATIVE_DOUBLE);
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "Mx_gamma", HOFFSET(Measures, Mx_gamma), H5T_NATIVE_DOUBLE);
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "My_gamma", HOFFSET(Measures, My_gamma), H5T_NATIVE_DOUBLE);
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "Mx_theta12", HOFFSET(Measures, Mx_theta12), H5T_NATIVE_DOUBLE);
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "My_theta12", HOFFSET(Measures, My_theta12), H5T_NATIVE_DOUBLE);
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "vortex_density", HOFFSET(Measures, vortex_density), HDF5_RHO_TYPE);
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "antivortex_density", HOFFSET(Measures, antivortex_density), HDF5_RHO_TYPE);
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "v1v2_density", HOFFSET(Measures, v1v2_density), HDF5_RHO_TYPE);
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "v1av2_density", HOFFSET(Measures, v1av2_density), HDF5_RHO_TYPE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "DH_Ddi", HOFFSET(Measures, DH_Ddi), HDF5_RHO_TYPE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "D2H_Dd2i", HOFFSET(Measures, D2H_Dd2i), HDF5_RHO_TYPE);
     //H5Tinsert(MY_HDF5_MEASURES_TYPE, "D2H_Dd2ij", HOFFSET(Measures, D2H_Dd2ij), HDF5_RHO_TYPE);
@@ -230,7 +239,7 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
             energy(mis, Hp, Site);
             Z2_magnetization(mis, Site);
             magnetization_singlephase(mis,  Site);
-            new_vorticity( local_vort_density, Hp, Site);
+            new_vorticity(mis, local_vort_density, Hp, Site);
             (Hp.e == 0) ? helicity_modulus(mis, Hp, Site) : dual_stiffness(mis, Hp, Site);
             (Hp.K < 0) ? nematic_order(mis, Site) : void();
 

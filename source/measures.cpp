@@ -183,8 +183,8 @@ void nematic_order(struct Measures &mis, const std::vector<Node> &Site){
                 gamma_temp+=C_PI;
             }
 //            mis.gamma+=(double)gamma_temp;
-//            mis.Mx_gamma+= (double)cos(gamma_temp);
-//            mis.My_gamma+= (double)sin(gamma_temp);
+            mis.Mx_gamma+= (double)cos(gamma_temp);
+            mis.My_gamma+= (double)sin(gamma_temp);
 
             theta_temp=(Site[ix+Lx*(iy)].Psi[0].t - Site[ix+Lx*(iy)].Psi[1].t);
             while(theta_temp >= C_PI){
@@ -194,8 +194,8 @@ void nematic_order(struct Measures &mis, const std::vector<Node> &Site){
                 theta_temp+=C_TWO_PI;
             }
 //            mis.theta12+= (double)theta_temp;
-//            mis.Mx_theta12+= (double)cos(theta_temp);
-//            mis.My_theta12+= (double)sin(theta_temp);
+            mis.Mx_theta12+= (double)cos(theta_temp);
+            mis.My_theta12+= (double)sin(theta_temp);
 
             mis.Mx_nem+= (double)sin(gamma_temp)* (double)cos(theta_temp);
             mis.My_nem+= (double)sin(gamma_temp)* (double)sin(theta_temp);
@@ -213,7 +213,7 @@ void nematic_order(struct Measures &mis, const std::vector<Node> &Site){
 
 }
 
-void new_vorticity(std::vector<Vdensity> &local_vort_density, struct H_parameters &Hp, const std::vector<Node> &Site ){
+void new_vorticity(struct Measures &mis, std::vector<Vdensity> &local_vort_density, struct H_parameters &Hp, const std::vector<Node> &Site ){
     using namespace cfg;
 
     double B= C_TWO_PI*(Hp.fy - Hp.fx);
@@ -222,6 +222,7 @@ void new_vorticity(std::vector<Vdensity> &local_vort_density, struct H_parameter
     for (size_t iy = 0; iy < Ly; iy++) {
         for (size_t ix = 0; ix < Lx; ix++) {
             double n=0;
+
             size_t nv1=0, nv2=0, nav1=0, nav2=0;
             //Convention gauge phase
             //gauge_phase = Site[nn_ip].Psi[alpha].t - Site[i].Psi[alpha].t + Site[i].R_ext[vec] + Hp.h * Hp.e * Site[i].A[vec];
@@ -229,6 +230,15 @@ void new_vorticity(std::vector<Vdensity> &local_vort_density, struct H_parameter
             size_t alpha=0;
             size_t ipx= (ix == Lx-1 ? 0: ix+1);
             size_t i= ix + Lx*(iy);
+            local_vort_density[i].v1[0]=0;
+            local_vort_density[i].v1[1]=0;
+            local_vort_density[i].v2[0]=0;
+            local_vort_density[i].v2[1]=0;
+            local_vort_density[i].v1v2[0]=0;
+            local_vort_density[i].v1v2[1]=0;
+            local_vort_density[i].v1av2[0]=0;
+            local_vort_density[i].v1av2[1]=0;
+
             size_t nn_ipx=ipx + Lx*(iy);
             double phi_1=  Site[nn_ipx].Psi[alpha].t -Site[i].Psi[alpha].t + Site[i].R_ext[0] + Hp.h * Hp.e * Site[i].A[0];
             while(phi_1< -C_PI){
@@ -264,12 +274,14 @@ void new_vorticity(std::vector<Vdensity> &local_vort_density, struct H_parameter
             }
             n=((phi_1 + phi_2+ phi_3 + phi_4) - B)/C_TWO_PI;
             if(n>0.01){
-                local_vort_density[i].v1[0]+=1;
+                local_vort_density[i].v1[0]=1;
                 nv1=1;
+                mis.vortex_density[0]+=1;
             }
             else if(n<-0.01){
-                local_vort_density[i].v1[1]+=1;
+                local_vort_density[i].v1[1]=1;
                 nav1=1;
+                mis.antivortex_density[0]+=1;
             }
 
             //Circuitation of the phase component 1 around the i-th plaquette
@@ -303,26 +315,32 @@ void new_vorticity(std::vector<Vdensity> &local_vort_density, struct H_parameter
                 phi_4-= C_TWO_PI;
             }
             n=((phi_1 + phi_2+ phi_3 + phi_4)-B)/C_TWO_PI;
+
             if(n>0.01){
-                local_vort_density[i].v2[0]+=1;
+                local_vort_density[i].v2[0]=1;
                 nv2=1;
+                mis.vortex_density[1]+=1;
             }
             else if(n<-0.01){
-                local_vort_density[i].v2[1]+=1;
+                local_vort_density[i].v2[1]=1;
                 nav2=1;
+                mis.antivortex_density[1]+=1;
             }
             if( (nv1==1) && (nv2==1)){
-                local_vort_density[i].v1v2[0]+=1;
+                local_vort_density[i].v1v2[0]=1;
+                mis.v1v2_density[0]+=1;
             }else if((nav1==1) && (nav2==1)){
-                local_vort_density[i].v1v2[1]+=1;
+                local_vort_density[i].v1v2[1]=1;
+                mis.v1v2_density[1]+=1;
             }else if((nv1==1) && (nav2==1)){
-                local_vort_density[i].v1av2[0]+=1;
+                local_vort_density[i].v1av2[0]=1;
+                mis.v1av2_density[0]+=1;
             }else if((nav1==1) && (nv2==1)){
-                local_vort_density[i].v1av2[1]+=1;
+                local_vort_density[i].v1av2[1]=1;
+                mis.v1av2_density[1]+=1;
             }
         }
     }
-
 }
 
 void save_vortexlattice(const std::vector<Vdensity> &v_local, const fs::path & directory_write, const std::string & configuration){
