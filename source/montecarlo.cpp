@@ -118,6 +118,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
 //slightly different phase update procedure where first I update N times the phase of the component 1 and afterward N times that of componennt 2
 void metropolis2(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp,  double my_beta){
     using namespace cfg;
+    using namespace rnd;
     auto t_metropolis = tid::tic_scope(__FUNCTION__);
     double d_theta, rand;
     double acc_rate=0.5, acc_theta=0.;
@@ -127,35 +128,32 @@ void metropolis2(const std::vector<Node> &Site, struct MC_parameters &MCp, struc
     double h2=(Hp.h*Hp.h);
 
     for (size_t alpha=0; alpha<NC; alpha++) {
-        for (size_t iy = 0; iy < Ly; iy++) {
-            for (size_t ix = 0; ix < Lx; ix++) {
-                size_t i = ix + Lx * (iy);
-                /*choose randomly a site of the lattice*/
-                //i = rnd::uniform_integer_box(0, N-1);
-                //ix=i%Lx;
-                //iy=i/Ly;
-                /*************PSI UPDATE: phase update **********/
-                OldPsi[0] = Site[i].Psi[0];
-                OldPsi[1] = Site[i].Psi[1];
-                NewPsi[0] = Site[i].Psi[0];
-                NewPsi[1] = Site[i].Psi[1];
-                d_theta = rnd::uniform_double_box(-MCp.lbox_theta, MCp.lbox_theta);
-                NewPsi[alpha].t = fmod(OldPsi[alpha].t + d_theta, C_TWO_PI);
-                NewPsi[alpha].r = OldPsi[alpha].r;
-                polar_to_cartesian(NewPsi[alpha]);
-                oldE = local_HPsi(OldPsi, ix, iy, Hp, Site);
-                newE = local_HPsi(NewPsi, ix, iy, Hp, Site);
-                minus_deltaE = h2 * (oldE - newE);
-                if (minus_deltaE > 0) {
+        for (size_t ni = 0; ni < N; ni++) {
+            /*choose randomly a site of the lattice*/
+            size_t i = uniform_integer_box(0, (int)N-1);
+            size_t ix=i%Lx;
+            size_t iy=i/Ly;
+            /*************PSI UPDATE: phase update **********/
+            OldPsi[0] = Site[i].Psi[0];
+            OldPsi[1] = Site[i].Psi[1];
+            NewPsi[0] = Site[i].Psi[0];
+            NewPsi[1] = Site[i].Psi[1];
+            d_theta = rnd::uniform_double_box(-MCp.lbox_theta, MCp.lbox_theta);
+            NewPsi[alpha].t = fmod(OldPsi[alpha].t + d_theta, C_TWO_PI);
+            NewPsi[alpha].r = OldPsi[alpha].r;
+            polar_to_cartesian(NewPsi[alpha]);
+            oldE = local_HPsi(OldPsi, ix, iy, Hp, Site);
+            newE = local_HPsi(NewPsi, ix, iy, Hp, Site);
+            minus_deltaE = h2 * (oldE - newE);
+            if (minus_deltaE > 0) {
+                Site[i].Psi[alpha] = NewPsi[alpha];
+                acc_theta++;
+            } else {
+                rand = uniform_double_box(0, 1);
+                //Boltzmann weight: exp(-\beta \Delta E) E= h³ \sum_i E(i)
+                if (rand < exp(my_beta * minus_deltaE)) {
                     Site[i].Psi[alpha] = NewPsi[alpha];
                     acc_theta++;
-                } else {
-                    rand = rnd::uniform_double_box(0, 1);
-                    //Boltzmann weight: exp(-\beta \Delta E) E= h³ \sum_i E(i)
-                    if (rand < exp(my_beta * minus_deltaE)) {
-                        Site[i].Psi[alpha] = NewPsi[alpha];
-                        acc_theta++;
-                    }
                 }
             }
         }

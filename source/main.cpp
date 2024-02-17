@@ -229,8 +229,8 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
             metropolis(Site, MCp, Hp, my_beta);
             metropolis2(Site, MCp, Hp, my_beta);
 
-            (Hp.K>4) ? wolff_BTRS(Site, MCp, Hp, my_beta) : void() ;
-            (Hp.K<-4) ? wolff_nemK(Site, MCp, Hp, my_beta) : void();
+            (Hp.K>5) ? wolff_BTRS(Site, MCp, Hp, my_beta) : void() ;
+            (Hp.K<-5) ? wolff_nemK(Site, MCp, Hp, my_beta) : void();
         }
         {
             //Measure
