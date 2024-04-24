@@ -275,7 +275,6 @@ void wolff_nemK(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
 
     /*choose randomly which of the two phases will be updated*/
     auto alpha_up = rnd::uniform_integer_box<size_t>(0, 1);
-    std::cout<< alpha_up<< std::endl;
 
     growCluster_nemK(iseed, alpha_up, clusterSpin, Site, MCp, Hp, my_beta);
 
