@@ -277,3 +277,73 @@ double local_HA(double A, size_t ix, size_t iy,  size_t vec,  struct H_parameter
 }
 
 
+/* For the moment implemented for lambda=0. DOES NOT WORK */
+void overrelaxation(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H_parameters &Hp,  double my_beta){
+    using namespace cfg;
+    auto t_metropolis = tid::tic_scope(__FUNCTION__);
+    std::array<O2, NC> pxPsi{};
+    std::array<O2, NC> pyPsi{};
+    std::array<O2, NC> mxPsi{};
+    std::array<O2, NC> myPsi{};
+    struct O2 localField{};
+    struct O2 newPsi{};
+    double rnorm, coeff;
+
+    for(size_t i=0; i<N; i++) {
+        for (size_t alpha = 0; alpha < NC; alpha++) {
+            polar_to_cartesian(Site[i].Psi[alpha]);
+        }
+    }
+
+    for (size_t iy = 0; iy < Ly; iy++) {
+        for (size_t ix = 0; ix < Lx; ix++) {
+            size_t i = ix + Lx * (iy);
+
+            size_t ipx=(ix == Lx-1 ? 0: ix+1);
+            size_t imx=(ix == 0 ? Lx-1: ix-1);
+
+            size_t ipy=(iy == Ly-1 ? 0: iy+1);
+            size_t imy=(iy == 0 ? Ly-1: iy-1);
+
+            for (size_t alpha = 0; alpha < NC; alpha++) {
+                pxPsi[alpha].t= Site[ipx + Lx*iy].Psi[alpha].t + Site[i].R_ext[0] + Hp.h * Hp.e * Site[i].A[0];
+                pxPsi[alpha].r= Site[ipx + Lx*iy].Psi[alpha].r;
+
+                mxPsi[alpha].t= Site[imx + Lx*iy].Psi[alpha].t - Site[imx + Lx*iy].R_ext[0] - Hp.h * Hp.e * Site[imx + Lx*iy].A[0];
+                mxPsi[alpha].r= Site[imx + Lx*iy].Psi[alpha].r;
+
+                pyPsi[alpha].t= Site[ix + Lx*ipy].Psi[alpha].t + Site[i].R_ext[1] + Hp.h * Hp.e * Site[i].A[1];
+                pyPsi[alpha].r= Site[ix + Lx*ipy].Psi[alpha].r;
+
+                myPsi[alpha].t= Site[ix + Lx*imy].Psi[alpha].t - Site[ix + Lx*imy].R_ext[1] - Hp.h * Hp.e * Site[ix + Lx*imy].A[1];
+                myPsi[alpha].r= Site[ix + Lx*imy].Psi[alpha].r;
+
+                polar_to_cartesian(pxPsi[alpha]);
+                polar_to_cartesian(mxPsi[alpha]);
+                polar_to_cartesian(pyPsi[alpha]);
+                polar_to_cartesian(myPsi[alpha]);
+
+                localField.y = -(pxPsi[alpha].y + mxPsi[alpha].y + pyPsi[alpha].y + myPsi[alpha].y );
+                localField.x = -(pxPsi[alpha].x + mxPsi[alpha].x + pyPsi[alpha].x + myPsi[alpha].x );
+
+                for(size_t beta=0; beta<NC; beta++){
+                    if(beta!= alpha){
+                        localField.x += 2*Hp.K*Site[i].Psi[beta].x;
+                        localField.y += 2*Hp.K*Site[i].Psi[beta].y;
+                    }
+                }
+
+                if( O2norm2(localField)!= 0){
+
+                    rnorm= 1./O2norm2(localField);
+                    coeff= 2.0*rnorm*O2prod(Site[i].Psi[alpha],localField);
+                    O2comb(newPsi, -1.0, Site[i].Psi[alpha], coeff, localField);
+
+                    Site[i].Psi[alpha]=newPsi;
+                    cartesian_to_polar(Site[i].Psi[alpha]);
+                }
+            }
+        }
+    }
+}
+

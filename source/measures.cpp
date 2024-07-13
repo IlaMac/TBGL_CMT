@@ -341,6 +341,10 @@ void new_vorticity(struct Measures &mis, std::vector<Vdensity> &local_vort_densi
             }
         }
     }
+//    std::cout<<"C1 vortex density: " << mis.vortex_density[0]<< std::endl;
+//    std::cout<< "C1 antivortex density: " << mis.antivortex_density[0]<< std::endl;
+//    std::cout<<"C2 vortex density:" << mis.vortex_density[1]<< std::endl;
+//    std::cout<< "C2 antivortex density: " << mis.antivortex_density[1]<< std::endl;
 }
 
 void save_vortexlattice(const std::vector<Vdensity> &v_local, const fs::path & directory_write, const std::string & configuration){

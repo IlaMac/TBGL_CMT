@@ -31,16 +31,16 @@ void initialize_Hparameters(struct H_parameters &Hp){
             //With this modification Hp.beta in not anymore part of the Hamiltonian parameters list
         }
     }else{
-        Hp.K=1;
+        Hp.K=5;
         Hp.lambda=0;
         Hp.e=0;
         Hp.h= 1;
-        Hp.b_low=100.0;
+        Hp.b_low=50.0;
         Hp.b_high=500.0;
         /* A_fixed = (2\pi fx y_i, 2 \pi fy x_i)*/
         Hp.fx=0;
         Hp.fy=1./8;
-        Hp.init=4;
+        Hp.init=0;
         Hp.london_app=0;
     }
 

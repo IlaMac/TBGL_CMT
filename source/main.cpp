@@ -220,12 +220,13 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
         for (int t = 0; t < MCp.transient; t++) {
             metropolis(Site, MCp, Hp, my_beta);
             metropolis2(Site, MCp, Hp, my_beta);
-
+            mis.reset();
+            energy(mis, Hp, Site);
+            parallel_temp(mis.E, my_beta, my_ind, PTp, PTroot);
         }
     }
     for (int nM = NSTART; nM<MCp.nmisu; nM++) {
         for (int t = 0; t < MCp.tau; t++) {
-
             metropolis(Site, MCp, Hp, my_beta);
 //            metropolis2(Site, MCp, Hp, my_beta);
             if((Hp.fx == 0) && (Hp.fy ==0) ){
