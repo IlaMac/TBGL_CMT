@@ -7,23 +7,31 @@
 void initialize_PTarrays(struct PT_parameters &PTp, struct PTroot_parameters &PTroot, struct H_parameters &Hp){
     int p;
     double beta_low, beta_high, delta_beta;
+    double T_low, T_high, delta_T;
 
     if(Hp.b_high>Hp.b_low){ //Paranoic check
         beta_low=Hp.b_low;
         beta_high=Hp.b_high;
+        T_high=1./Hp.b_low;
+        T_low=1./Hp.b_high;
     }else{
         beta_low=Hp.b_high;
         beta_high=Hp.b_low;
+        T_high=1./Hp.b_high;
+        T_low=1./Hp.b_low;
     }
     PTroot.beta.resize(PTp.np, 0.0);
     PTroot.All_Energies.resize(PTp.np, 0.0);
     PTroot.ind_to_rank.resize(PTp.np, 0);
     PTroot.rank_to_ind.resize(PTp.np, 0);
     delta_beta=(beta_high-beta_low)/(PTp.np-1);
+    delta_T=(T_high - T_low)/(PTp.np-1);
     for(p=0; p<PTp.np; p++){
         PTroot.rank_to_ind[p]=p;
         PTroot.ind_to_rank[p]=p;
-        PTroot.beta[p]=beta_low + p*delta_beta;
+//        PTroot.beta[p]=beta_low + p*delta_beta;
+        PTroot.beta[p]=1./(T_high - p*delta_T); //equally spaced in T
+
     }
 }
 
