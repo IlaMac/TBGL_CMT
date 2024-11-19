@@ -144,25 +144,21 @@ void Z2_magnetization(struct Measures &mis, const std::vector<Node> &Site){
     mis.z2_m= (double)mis.z2_m / static_cast<double>(N);
 }
 
-void magnetization_singlephase(struct Measures &mis, const std::vector<Node> &Site){
+void magnetization_phasesum(struct Measures &mis, const std::vector<Node> &Site){
     using namespace cfg;
     auto t_magnetization = tid::tic_scope(__FUNCTION__);
-    [[maybe_unused]] double cos_phi[NC]={0}; //TODO: REMOVE UNUSED
-    [[maybe_unused]] double sin_phi[NC]={0}; //TODO: REMOVE UNUSED
     auto inv_N= 1. / static_cast<double>(N);
 
     for(auto & s : Site) {
-        for (size_t alpha = 0; alpha < NC; alpha++) {
-            mis.mx_phase[alpha] += cos(s.Psi[alpha].t);
-            mis.my_phase[alpha] += sin(s.Psi[alpha].t);
-        }
+            mis.mx_phasesum += cos(s.Psi[0].t +s.Psi[1].t);
+            mis.my_phasesum += sin(s.Psi[0].t +s.Psi[1].t);
     }
 
-    for(size_t alpha=0; alpha<NC; alpha++) {
-        mis.mx_phase[alpha]*=inv_N;
-        mis.my_phase[alpha]*=inv_N;
-    }
+
+    mis.mx_phasesum*=inv_N;
+    mis.my_phasesum*=inv_N;
 }
+
 
 void nematic_order(struct Measures &mis, const std::vector<Node> &Site){
     using namespace cfg;

@@ -23,8 +23,8 @@ struct Measures{
     double E_B=0.;
     double z2_m=0.; //magnetization (for the phase chirality of the two components)
     //Binder cumulant U=<m⁴>/(3*<m²>²)
-    double mx_phase[NC]={0.}; //x component of the magnetization of the single component phase
-    double my_phase[NC]={0.}; //y component of the magnetization of the single component phase
+    double mx_phasesum=0.; //x component of the magnetization of the single component phase
+    double my_phasesum=0.; //y component of the magnetization of the single component phase
     double d_rhoz=0; //Dual stiffness along z
     double density_psi[NC] = {0.};
     double density_diff=0.;
@@ -60,7 +60,7 @@ struct Vdensity {
 void helicity_modulus(struct Measures &mis, struct H_parameters &Hp, const std::vector<Node> &Site);
 void dual_stiffness(struct Measures &mis, struct H_parameters &Hp, const std::vector<Node> &Site);
 void Z2_magnetization(struct Measures &mis, const std::vector<Node> &Site);
-void magnetization_singlephase(struct Measures &mis, const std::vector<Node> &Site);
+void magnetization_phasesum(struct Measures &mis, const std::vector<Node> &Site);
 void energy(struct Measures &mis, struct H_parameters &Hp, const std::vector<Node> &Site);
 void nematic_order(struct Measures &mis, const std::vector<Node> &Site);
 void save_lattice(const std::vector<Node> &Site, const fs::path & directory_write, const std::string &configuration);

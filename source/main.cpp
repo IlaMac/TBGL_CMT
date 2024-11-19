@@ -188,8 +188,8 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "E_kin", HOFFSET(Measures, E_kin), H5T_NATIVE_DOUBLE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "E_B", HOFFSET(Measures, E_B), H5T_NATIVE_DOUBLE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "m", HOFFSET(Measures, z2_m), H5T_NATIVE_DOUBLE);
-    H5Tinsert(MY_HDF5_MEASURES_TYPE, "mx_phase", HOFFSET(Measures, mx_phase),  HDF5_RHO_TYPE);
-    H5Tinsert(MY_HDF5_MEASURES_TYPE, "my_phase", HOFFSET(Measures, my_phase),  HDF5_RHO_TYPE);
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "mx_phasesum", HOFFSET(Measures, mx_phasesum),  H5T_NATIVE_DOUBLE);
+    H5Tinsert(MY_HDF5_MEASURES_TYPE, "my_phasesum", HOFFSET(Measures, my_phasesum),  H5T_NATIVE_DOUBLE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "ds", HOFFSET(Measures, d_rhoz), H5T_NATIVE_DOUBLE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "rho", HOFFSET(Measures, density_psi), HDF5_RHO_TYPE);
     H5Tinsert(MY_HDF5_MEASURES_TYPE, "rho_diff", HOFFSET(Measures, density_diff), H5T_NATIVE_DOUBLE);
@@ -240,7 +240,7 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
             mis.reset();
             energy(mis, Hp, Site);
             Z2_magnetization(mis, Site);
-            magnetization_singlephase(mis,  Site);
+            magnetization_phasesum(mis,  Site);
             new_vorticity(mis, local_vort_density, Hp, Site);
             (Hp.e == 0) ? helicity_modulus(mis, Hp, Site) : dual_stiffness(mis, Hp, Site);
             (Hp.K < 0) ? nematic_order(mis, Site) : void();
