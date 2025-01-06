@@ -181,7 +181,6 @@ double local_HPsi(std::array<O2, NC> &Psi, size_t ix, size_t iy, H_parameters &H
     size_t imx= (ix == 0 ? Lx-1: ix-1)+Lx*(iy);
     size_t imy= ix+Lx*((iy == 0 ? Ly-1: iy-1));
 
-
     //Compute the local Energy respect to a given component (alpha) of the matter field Psi and a given spatial position (r=(ix, iy, iz))
     //We need to compute just the part of the Hamiltonian involving Psi
     for(size_t alpha=0; alpha<NC; alpha ++) {

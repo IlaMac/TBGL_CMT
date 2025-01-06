@@ -154,7 +154,6 @@ void magnetization_phasesum(struct Measures &mis, const std::vector<Node> &Site)
             mis.my_phasesum += sin(s.Psi[0].t +s.Psi[1].t);
     }
 
-
     mis.mx_phasesum*=inv_N;
     mis.my_phasesum*=inv_N;
 }
