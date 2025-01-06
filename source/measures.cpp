@@ -107,8 +107,16 @@ void dual_stiffness(struct Measures &mis, struct H_parameters &Hp, const std::ve
     for(size_t ix=0; ix<Lx;ix++){
         for(size_t iy=0; iy<Ly;iy++){
             size_t i=ix +Lx*(iy);
-            Dx_Ay=(Site[nn(i, 0, 1)].A[1]- Site[i].A[1])*inv_h;
-            Dy_Ax=(Site[nn(i, 1, 1)].A[0]- Site[i].A[0])*inv_h;
+            size_t ipx=(ix == Lx-1 ? 0: ix+1);
+            size_t nn_ipx=ipx+Lx*(iy);
+            size_t ipy=(iy == Ly-1 ? 0: iy+1);
+            size_t nn_ipy=ix+Lx*(ipy);
+
+//            std::cout<< "i: "<< i<< " nn(i, 1, 1): "<< nn(i, 1, 1) << " nn_ipy: " << nn_ipy<<std::endl;
+//            the function  nn(i, 1, 1) works but it takes longer!
+
+            Dx_Ay=(Site[nn_ipx].A[1]- Site[i].A[1])*inv_h;
+            Dy_Ax=(Site[nn_ipy].A[0]- Site[i].A[0])*inv_h;
 
             Re_rhoz+=(cos((qx_min*static_cast<double>(ix)))*(Dx_Ay -Dy_Ax));
             Im_rhoz+=(sin((qx_min*static_cast<double>(ix)))*(Dx_Ay -Dy_Ax));

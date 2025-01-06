@@ -26,22 +26,23 @@ void initialize_Hparameters(struct H_parameters &Hp){
             if(fscanf(fin, "%lf" , &Hp.fy) == 0) {fclose(fin); throw std::runtime_error("fscanf failed");}
             if(fscanf(fin, "%d", &Hp.init) == 0) {fclose(fin); throw std::runtime_error("fscanf failed");}
             if(fscanf(fin, "%d", &Hp.london_app) == 0) {fclose(fin); throw std::runtime_error("fscanf failed");}
+            if(fscanf(fin, "%d", &Hp.phase_update) == 0) {fclose(fin); throw std::runtime_error("fscanf failed");}
             fclose(fin);
             /* clang-format on */
             //With this modification Hp.beta in not anymore part of the Hamiltonian parameters list
         }
     }else{
-        Hp.K=5;
-        Hp.lambda=0;
-        Hp.e=0;
+        Hp.K=-1;
+        Hp.lambda=1;
+        Hp.e=0.2;
         Hp.h= 1;
-        Hp.b_low=50.0;
-        Hp.b_high=500.0;
+        Hp.b_low=2.0;
+        Hp.b_high=5.0;
         /* A_fixed = (2\pi fx y_i, 2 \pi fy x_i)*/
         Hp.fx=0;
-        Hp.fy=1./8;
+        Hp.fy=0;
         Hp.init=0;
-        Hp.london_app=0;
+        Hp.phase_update=1;
     }
 
 }
@@ -65,8 +66,8 @@ void initialize_MCparameters(struct MC_parameters &MCp){
         }
     }else{
         MCp.nmisu=10000;
-        MCp.tau=100;
-        MCp.transient=2000;
+        MCp.tau=10;
+        MCp.transient=0;
         MCp.freq_autosave=5000;
         MCp.lbox_l=1.0;
         MCp.lbox_theta=C_PI*0.25;

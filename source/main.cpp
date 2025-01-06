@@ -157,9 +157,6 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
     std::vector <Vdensity> local_vort_density;
     local_vort_density.resize(N);
 
-
-    std::cout<< "check" << local_vort_density[2].v1[0] << std::endl;
-
     auto directory_write_temp = fmt::format("{}/beta_{}", cfg::paths_dir::directory_parameters_temp , my_ind);
     h5pp::File file;
 
@@ -218,8 +215,9 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
     if(NSTART==0){
         /**Thermalization**/
         for (int t = 0; t < MCp.transient; t++) {
+//            std::cout<< "transient: "<< t<<std::endl;
             metropolis(Site, MCp, Hp, my_beta);
-            metropolis2(Site, MCp, Hp, my_beta);
+//            metropolis2(Site, MCp, Hp, my_beta);
             mis.reset();
             energy(mis, Hp, Site);
             parallel_temp(mis.E, my_beta, my_ind, PTp, PTroot);
@@ -227,6 +225,7 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
     }
     for (int nM = NSTART; nM<MCp.nmisu; nM++) {
         for (int t = 0; t < MCp.tau; t++) {
+//            std::cout<< t<<std::endl;
             metropolis(Site, MCp, Hp, my_beta);
 //            metropolis2(Site, MCp, Hp, my_beta);
             if((Hp.fx == 0) && (Hp.fy ==0) ){

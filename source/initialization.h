@@ -37,7 +37,9 @@ struct H_parameters{
     double fx;
     double fy;
     int init; //Initial conditions
-    int london_app; //If 0: GL model; if 1: London model
+    int london_app; //If 0 (false): GL model; if 1 (true): London model
+    int phase_update; //If 0 (false): only density updates, fixed phases
+
 };
 
 

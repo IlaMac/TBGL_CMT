@@ -49,8 +49,11 @@ H_init=4
 #H_init=4: random
 
 H_london=0
-#H_london=0 density update with total density constraint
+#H_london=0 DEFAULT:density update with total density constraint
 #H_london=1 London approximation
+H_phase_update=1
+#H_phase_update=0 NO PHASE UPDATES
+#H_phase_update=1 DEFAULT:PHASE UPDATES
 
 ############ Parameters for the Monte Carlo simulations --> MC_init.txt#####################
 
@@ -102,17 +105,27 @@ fi
 
 cd h_${H_h}
 
+
 if [ ! -d ./SL${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}__init${H_init}_london${H_london} ]; then
    mkdir -p L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}
 fi
 
 if [[ "${ExtField}" == "1" ]]; then
   OUTPUT=${BASEDIR}/Output_TBGL_CMT/fx_${H_fx}_fy_${H_fy}/lambda_${H_lambda}/K_${H_K}/e_${H_e}/h_${H_h}/L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}
+  if [[ "${H_phase_update]}" == "0" ]]; then
+      OUTPUT=${BASEDIR}/Output_TBGL_CMT/fx_${H_fx}_fy_${H_fy}/lambda_${H_lambda}/K_${H_K}/e_${H_e}/h_${H_h}/L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}_nophaseupdate
+  fi
+
 fi
 
 if [[ "${ExtField}" == "0" ]]; then
   OUTPUT=${BASEDIR}/Output_TBGL_CMT/lambda_${H_lambda}/K_${H_K}/e_${H_e}/h_${H_h}/L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}
+  if [[ "${H_phase_update]}" == "0" ]]; then
+      OUTPUT=${BASEDIR}/Output_TBGL_CMT/lambda_${H_lambda}/K_${H_K}/e_${H_e}/h_${H_h}/L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}_nophaseupdate
+  fi
+
 fi
+
 
 #############################################
 cd /tmp/Output_x_ilaria
@@ -155,10 +168,16 @@ fi
 
 if [[ "${ExtField}" == "1" ]]; then
   OUTPUT_TEMP=/tmp/Output_x_ilaria/fx_${H_fx}_fy_${H_fy}/lambda_${H_lambda}/K_${H_K}/e_${H_e}/h_${H_h}/L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}
+  if [[ "${H_phase_update]}" == "0" ]]; then
+      OUTPUT=/tmp/Output_x_ilaria/fx_${H_fx}_fy_${H_fy}/lambda_${H_lambda}/K_${H_K}/e_${H_e}/h_${H_h}/L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}_nophaseupdate
+  fi
 fi
 
 if [[ "${ExtField}" == "0" ]]; then
   OUTPUT_TEMP=/tmp/Output_x_ilaria/lambda_${H_lambda}/K_${H_K}/e_${H_e}/h_${H_h}/L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}
+  if [[ "${H_phase_update]}" == "0" ]]; then
+      OUTPUT_TEMP=/tmp/Output_x_ilaria/lambda_${H_lambda}/K_${H_K}/e_${H_e}/h_${H_h}/L${L}_lambda${H_lambda}_K${H_K}_e${H_e}_h${H_h}_bmin${H_blow}_bmax${H_bhigh}_init${H_init}_london${H_london}_nophaseupdate
+  fi
 fi
 #############################################
 
@@ -175,6 +194,7 @@ echo $H_fx >> HP_init.txt
 echo $H_fy >> HP_init.txt
 echo $H_init >> HP_init.txt
 echo $H_london>> HP_init.txt
+echo $H_phase_update>> HP_init.txt
 
 #THE ORDER OF WRITING DOES MATTER
 echo $Nmisu > MC_init.txt

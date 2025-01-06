@@ -22,7 +22,7 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
             //i = rnd::uniform_integer_box(0, N-1);
             //ix=i%Lx;
             //iy=i/Ly;
-            if(Hp.london_app == 0) {
+            if (Hp.london_app == 0) {
                 /*************PSI UPDATE: density update with total density contraint **********/
                 OldPsi[0] = Site[i].Psi[0];
                 OldPsi[1] = Site[i].Psi[1];
@@ -51,28 +51,30 @@ void metropolis(const std::vector<Node> &Site, struct MC_parameters &MCp, struct
                 }
             }
             /*************PSI UPDATE: phase update **********/
+            if (Hp.phase_update != 0) {
 
-            for (size_t alpha = 0; alpha < NC; alpha++) {
-                OldPsi[0] = Site[i].Psi[0];
-                OldPsi[1] = Site[i].Psi[1];
-                NewPsi[0] = Site[i].Psi[0];
-                NewPsi[1] = Site[i].Psi[1];
-                d_theta = rnd::uniform_double_box(-MCp.lbox_theta, MCp.lbox_theta);
-                NewPsi[alpha].t = fmod(OldPsi[alpha].t + d_theta, C_TWO_PI);
-                NewPsi[alpha].r = OldPsi[alpha].r;
-                polar_to_cartesian(NewPsi[alpha]);
-                oldE = local_HPsi(OldPsi, ix, iy, Hp, Site);
-                newE = local_HPsi(NewPsi, ix, iy, Hp, Site);
-                minus_deltaE = h2 * (oldE - newE);
-                if (minus_deltaE > 0) {
-                    Site[i].Psi[alpha] = NewPsi[alpha];
-                    acc_theta++;
-                } else {
-                    rand = rnd::uniform_double_box(0, 1);
-                    //Boltzmann weight: exp(-\beta \Delta E) E= h³ \sum_i E(i)
-                    if (rand < exp(my_beta * minus_deltaE)) {
+                for (size_t alpha = 0; alpha < NC; alpha++) {
+                    OldPsi[0] = Site[i].Psi[0];
+                    OldPsi[1] = Site[i].Psi[1];
+                    NewPsi[0] = Site[i].Psi[0];
+                    NewPsi[1] = Site[i].Psi[1];
+                    d_theta = rnd::uniform_double_box(-MCp.lbox_theta, MCp.lbox_theta);
+                    NewPsi[alpha].t = fmod(OldPsi[alpha].t + d_theta, C_TWO_PI);
+                    NewPsi[alpha].r = OldPsi[alpha].r;
+                    polar_to_cartesian(NewPsi[alpha]);
+                    oldE = local_HPsi(OldPsi, ix, iy, Hp, Site);
+                    newE = local_HPsi(NewPsi, ix, iy, Hp, Site);
+                    minus_deltaE = h2 * (oldE - newE);
+                    if (minus_deltaE > 0) {
                         Site[i].Psi[alpha] = NewPsi[alpha];
                         acc_theta++;
+                    } else {
+                        rand = rnd::uniform_double_box(0, 1);
+                        //Boltzmann weight: exp(-\beta \Delta E) E= h³ \sum_i E(i)
+                        if (rand < exp(my_beta * minus_deltaE)) {
+                            Site[i].Psi[alpha] = NewPsi[alpha];
+                            acc_theta++;
+                        }
                     }
                 }
             }
