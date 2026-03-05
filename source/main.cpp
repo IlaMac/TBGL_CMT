@@ -231,7 +231,7 @@ void mainloop(const std::vector<Node> &Site, struct MC_parameters &MCp, struct H
             if((Hp.fx == 0) && (Hp.fy ==0) ){
                 // The Wolff_BTRS might break detailed balance unless we are in the London limit
                 // (Hp.K>4) ? wolff_BTRS(Site, MCp, Hp, my_beta) : void() ;
-                wolff_nemK(Site, MCp, Hp, my_beta) : void();
+                wolff_nemK(Site, MCp, Hp, my_beta);
             }
         }
         {
