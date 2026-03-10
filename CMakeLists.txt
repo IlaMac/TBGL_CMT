@@ -32,7 +32,7 @@ endif()
 
 ### Add all source files
 add_executable(CMT
-        source/main.cpp 
+        source/main.cpp
         source/initialization.cpp
         source/wolff_mc.cpp
         source/pt.cpp
@@ -43,7 +43,7 @@ add_executable(CMT
         source/tid/token.cpp
         source/tid/ur.cpp
         source/cli/cli.cpp
-        )
+)
 target_include_directories(CMT PRIVATE source)
 set_target_properties(CMT PROPERTIES LINK_WHAT_YOU_USE TRUE)
 
