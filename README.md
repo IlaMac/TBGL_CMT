@@ -1,12 +1,12 @@
 # TBGL_CMT
 
-**TBGL_CMT** is a C++ simulation code for a two-component (two-band) lattice Ginzburg–Landau model of superconductivity. It studies coupled complex order parameters interacting with a fluctuating gauge field; the code can also use the London approximation, in which the order-parameter amplitudes are fixed. The model includes inter-component coupling, electromagnetic coupling, an external field/flux, and optional phase updates.
+**TBGL_CMT** is a C++ simulation code for a two-component lattice Ginzburg–Landau model of chiral or nematic superconductors. It studies coupled complex order parameters interacting with a fluctuating gauge field; the code can also use the London approximation, in which the order-parameter amplitudes are fixed. The model includes inter-component coupling, electromagnetic coupling, an external field/flux, and optional phase updates.
 
 The simulation uses Monte Carlo updates, including Metropolis and Wolff-based updates where applicable, and MPI parallel tempering to sample across inverse temperatures. It records thermodynamic, ordering, stiffness, and vortex observables to HDF5.
 
 ## Model and observables
 
-Each lattice site stores two complex order parameters and the fluctuating vector potential. Model parameters include the inter-component coupling `K`, penetration-depth-related parameter `lambda`, gauge coupling `e`, external-field parameter `h`, and optional external flux (`fx`, `fy`). The `london_app` setting selects between the Ginzburg–Landau and London treatments; `phase_update` controls whether phases are updated.
+Each lattice site stores two complex order parameters and the fluctuating vector potential. Model parameters include the inter-component coupling `K` and `lambda`, gauge coupling `e`, lattice spacing `h`, and optional external flux (`fx`, `fy`). The `london_app` setting selects between the Ginzburg–Landau and London treatments; `phase_update` controls whether phases are updated.
 
 Measurements include energy contributions, the `Z₂` magnetization associated with the relative phase chirality, phase-sum magnetization, dual stiffness/helicity response, nematic order, and component-resolved vortex, antivortex, and paired-vortex densities. Results and saved configurations are written to HDF5/output files using the `h5pp` library.
 
