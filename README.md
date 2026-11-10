@@ -1,62 +1,70 @@
-[![Ubuntu 22.04](https://github.com/DavidAce/CMakeTemplate/actions/workflows/ubuntu-22.04.yml/badge.svg)](https://github.com/DavidAce/CMakeTemplate/actions/workflows/ubuntu-22.04.yml)
+# TBGL_CMT
 
-# CMake Template
-A template for building C++ projects using modern CMake with dependencies handled by Conan.
+**TBGL_CMT** is a C++ simulation code for a two-component (two-band) lattice Ginzburg–Landau model of superconductivity. It studies coupled complex order parameters interacting with a fluctuating gauge field; the code can also use the London approximation, in which the order-parameter amplitudes are fixed. The model includes inter-component coupling, electromagnetic coupling, an external field/flux, and optional phase updates.
 
-## Features
-- Unit testing with CTest 
-- Conan integration for dependencies
+The simulation uses Monte Carlo updates, including Metropolis and Wolff-based updates where applicable, and MPI parallel tempering to sample across inverse temperatures. It records thermodynamic, ordering, stiffness, and vortex observables to HDF5.
+
+## Model and observables
+
+Each lattice site stores two complex order parameters and the fluctuating vector potential. Model parameters include the inter-component coupling `K`, penetration-depth-related parameter `lambda`, gauge coupling `e`, external-field parameter `h`, and optional external flux (`fx`, `fy`). The `london_app` setting selects between the Ginzburg–Landau and London treatments; `phase_update` controls whether phases are updated.
+
+Measurements include energy contributions, the `Z₂` magnetization associated with the relative phase chirality, phase-sum magnetization, dual stiffness/helicity response, nematic order, and component-resolved vortex, antivortex, and paired-vortex densities. Results and saved configurations are written to HDF5/output files using the `h5pp` library.
 
 ## Requirements
-- C++17 compiler. Tested with
-    - GNU GCC version 12,
-    - LLVM Clang version 15
-- CMake version 3.24 or above.
-- conan version 2 **(Recommended)**
 
-## Dependencies
-By default, the direct dependencies are:
-- [h5pp](https://github.com/DavidAce/h5pp) For fast and simple binary storage (includes hdf5, eigen, spdlog and fmt)
-- [Eigen3](http://eigen.tuxfamily.org/)  For linear algebra
-- [fmt](https://github.com/fmtlib/fmt)  For string formatting
-- [spdlog](https://github.com/gabime/spdlog)  For logging
+- C++17 compiler
+- CMake 3.24 or newer
+- Ninja
+- Conan 2.x for the bundled `*-conan` presets
+- MPI implementation (enabled by the provided presets)
 
-These dependencies are installed automatically when using the bundled CMake Presets `release-conan` or `debug-conan`.
+The Conan requirements are listed in `conanfile.txt`: h5pp, Eigen, spdlog, fmt, PCG, and CLI11. OpenMP is available as a CMake option; the supplied presets enable MPI and OpenMP.
 
-Note that `h5pp` itself has the same dependencies, so they should already be present if `h5pp` was installed previously.
+## Build
 
+```bash
+pip install conan
+conan profile detect
 
-## Compatibility
-This template has only been tested in Linux environments.
+git clone https://github.com/IlaMac/TBGL_CMT.git
+cd TBGL_CMT
+cmake --list-presets
+cmake --preset=release-conan
+cmake --build --preset=release-conan
+```
 
+This builds the `CMT` executable at `build/release-conan/CMT`. Other compiler and debug presets are available; see `CMakePresets.json` and `cmake --list-presets` for the presets supported by your environment.
 
-## Usage with CMake Presets
-Build as any regular out-of-source CMake project after installing the dependencies above.
+## Run
 
-Use the bundled CMake Presets to opt-in to automatic dependency installation with conan.
+The command-line interface requires an output directory, a temporary directory, and the linear system size `L`:
 
-#### Step 1: Install conan
+```bash
+mpirun -np <process-count> build/release-conan/CMT \
+  --outdir <output-directory> \
+  --tempdir <temporary-directory> \
+  --system-size <L> \
+  --seed <integer> \
+  --restart <0|1|2>
+```
 
-    pip install conan
-    conan profile detect
+`--system-size L` creates an `L × L` lattice. `--seed` is optional, and restart mode defaults to `0` (valid values: 0–2). The executable writes measurements and configuration/restart data to the specified directories. The `launch_scripts/` directory contains examples for running on a cluster scheduler.
 
-#### Step 2: Clone CMakeTemplate and list its presets
-Open a terminal and run
+## Tests
 
-    git clone https://github.com/DavidAce/CMakeTemplate.git
-    cd CMakeTemplate
-    cmake --list-presets
-    -------------------------------------------------------
-    >    Available configure presets:
-    >
-    >      "release-conan" - Release|conan package manager
-    >      "debug-conan"   - Debug|conan package manager
+The supplied presets enable CTest. After building, run:
 
-#### Step 3: Configure and build
-Select a preset listed in the previous step, and run
+```bash
+ctest --test-dir build/release-conan --output-on-failure
+```
 
-    cmake --preset=release-conan
-    cmake --build --preset=release-conan
+## Repository layout
 
-These commands configure the project and builds the executable at `./build/release-conan/CMT`
+- `source/` — lattice model, initialization, Monte Carlo updates, parallel tempering, measurements, and CLI
+- `tests/` — CTest test programs
+- `launch_scripts/` — example cluster job and run scripts
+- `cmake/` — CMake support modules
 
+## License
+
+See [`LICENSE`](LICENSE) for the MIT License.
